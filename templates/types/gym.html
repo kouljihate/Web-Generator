@@ -1,0 +1,225 @@
+{# types/gym.html — gabarit salle de sport : hero sombre, comparaison d'abonnements #}
+{% extends "base.html" %}
+{% set color = "#2C3E50" %}
+{% set font = "Oswald" %}
+{% set template_type = "gym" %}
+
+{% block head_extra %}
+<style>
+body { background: var(--soft); }
+.hero { position: relative; color: #fff; overflow: hidden; }
+.hero__bg { position: absolute; inset: 0; background: url('{{ template_config.hero_image }}') center/cover no-repeat; filter: grayscale(35%); }
+.hero__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(10, 14, 20, .93) 0%, rgba(10, 14, 20, .7) 60%, rgba(10, 14, 20, .55) 100%);
+}
+.hero__inner { position: relative; z-index: 2; padding: 96px 0 88px; }
+.hero__inner > div { max-width: 620px; }
+.hero__kicker {
+  display: inline-block;
+  border-left: 4px solid var(--primary);
+  padding-left: 12px;
+  font-size: .8rem;
+  letter-spacing: .26em;
+  text-transform: uppercase;
+  color: #9FB3C8;
+  margin-bottom: 20px;
+}
+.hero h1 { text-transform: uppercase; letter-spacing: .01em; font-size: clamp(2.2rem, 6vw, 4rem); }
+.hero h1 span { color: #F1C40F; }
+.hero p { color: #C3CEDA; font-size: 1.04rem; margin-top: 18px; }
+.hero__actions { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 30px; }
+.hero__facts { display: flex; gap: 30px; flex-wrap: wrap; margin-top: 44px; }
+.hero__facts strong { display: block; font-size: 1.7rem; color: #fff; font-family: var(--font); }
+.hero__facts span { font-size: .78rem; letter-spacing: .12em; text-transform: uppercase; color: #9FB3C8; }
+
+/* --- Abonnements ------------------------------------------------------ */
+.plans { display: grid; gap: 24px; align-items: stretch; }
+.plan {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 32px 28px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-sm);
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.plan:hover { transform: translateY(-5px); box-shadow: var(--shadow); }
+.plan--best { border: 2px solid #F1C40F; box-shadow: 0 20px 46px rgba(241, 196, 15, .22); }
+.plan__flag {
+  position: absolute;
+  top: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #F1C40F;
+  color: #2C3E50;
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  padding: 6px 16px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.plan h3 { text-transform: uppercase; letter-spacing: .06em; font-size: 1.05rem; }
+.plan__price { display: flex; align-items: baseline; gap: 8px; margin: 18px 0 6px; }
+.plan__price strong { font-size: 2.3rem; font-family: var(--font); color: var(--primary-text); }
+.plan--best .plan__price strong { color: var(--primary-text); }
+.plan__price span { color: var(--muted); font-size: .92rem; }
+.plan__saving { font-size: .84rem; color: var(--ok-text); font-weight: 600; }
+.plan__desc { font-size: .91rem; margin: 14px 0 18px; }
+.plan ul { list-style: none; display: grid; gap: 11px; margin-bottom: 26px; }
+.plan li { display: flex; gap: 10px; font-size: .92rem; color: var(--ink); }
+.plan li::before { content: '✔'; color: var(--primary-text); font-weight: 700; }
+.plan .btn { margin-top: auto; }
+@media (min-width: 880px) {
+  .plans { grid-template-columns: repeat(3, 1fr); }
+  .plan--best { transform: scale(1.035); }
+  .plan--best:hover { transform: scale(1.035) translateY(-5px); }
+}
+
+/* --- Équipements / cours --------------------------------------------- */
+.facilities { display: grid; gap: 20px; margin-top: 30px; }
+.facility { background: var(--dark); color: #fff; border-radius: var(--radius); padding: 26px 24px; }
+.facility span { font-size: 1.6rem; }
+.facility h3 { color: #fff; font-size: 1.02rem; margin-top: 12px; text-transform: uppercase; letter-spacing: .05em; }
+.facility p { color: #A9B6C4; font-size: .89rem; margin-top: 6px; }
+@media (min-width: 800px) { .facilities { grid-template-columns: repeat(3, 1fr); } }
+
+.trial {
+  margin-top: 34px;
+  /* Bandeau volontairement sombre quel que soit le thème : sur un thème pâle,
+     une teinte `--primary-dark` claire rendrait le texte blanc illisible. */
+  background: linear-gradient(120deg, #1F2933 0%, var(--dark) 100%);
+  border-radius: var(--radius);
+  padding: 38px 32px;
+  color: #fff;
+  display: grid;
+  gap: 22px;
+  align-items: center;
+}
+.trial h3 { color: #fff; font-size: 1.4rem; text-transform: uppercase; letter-spacing: .03em; }
+.trial p { color: #B7C3D0; margin-top: 8px; }
+.trial__actions { display: flex; gap: 12px; flex-wrap: wrap; }
+@media (min-width: 860px) { .trial { grid-template-columns: 1.5fr 1fr; padding: 46px 40px; } }
+</style>
+{% endblock %}
+
+{% block hero %}
+<section class="hero">
+  <div class="hero__bg"></div>
+  <div class="hero__overlay"></div>
+  <div class="container hero__inner">
+    <div>
+      <span class="hero__kicker">{{ template_config.name }} · {{ business.city }}</span>
+      <h1>{{ business.name }}<br><span>Dépasse tes limites</span></h1>
+      <p>{{ business.description }}</p>
+      <div class="hero__actions">
+        <a class="btn btn--primary" style="background:#F1C40F;color:#2C3E50" href="{{ business.wa_link }}" target="_blank" rel="noopener">🎟️ Essai gratuit</a>
+        <a class="btn btn--outline" href="#services">Voir les abonnements</a>
+      </div>
+      <div class="hero__facts">
+        <div><strong>80+</strong><span>Machines</span></div>
+        <div><strong>7j/7</strong><span>Ouvert</span></div>
+        <div><strong>{{ '%.1f'|format(business.rating) if business.rating else '4.8' }}</strong><span>Note Google</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block services %}
+<section class="section" id="services">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">Abonnements</span>
+      <h2>Choisis ta formule</h2>
+      <p>Sans frais d'inscription. Paiement en espèces, carte ou virement.</p>
+    </div>
+
+    <div class="plans">
+      {% for plan in products %}
+      <article class="plan {% if loop.index == 3 %}plan--best{% endif %} reveal">
+        {% if plan.badge %}<span class="plan__flag">{{ plan.badge }}</span>{% endif %}
+        <h3>{{ plan.name }}</h3>
+        <div class="plan__price">
+          <strong>{{ plan.price }}</strong>
+          <span>{{ currency }} {{ plan.period }}</span>
+        </div>
+        {% if plan.old_price and plan.price < plan.old_price %}
+        <div class="plan__saving">
+          <span class="strike">{{ plan.old_price }} {{ currency }}</span>
+          — économie de {{ plan.old_price - plan.price }} {{ currency }}
+        </div>
+        {% endif %}
+        <p class="plan__desc">{{ plan.desc }}</p>
+        <ul>
+          {% for line in plan.features %}
+          <li>{{ line }}</li>
+          {% endfor %}
+        </ul>
+        {% if is_ecommerce %}
+        <button class="btn btn--primary add-to-cart" type="button"
+                data-name="{{ plan.name }}" data-price="{{ plan.price }}" data-image="{{ plan.image }}">
+          🛒 Choisir cette formule
+        </button>
+        {% else %}
+        <a class="btn btn--primary" href="{{ business.wa_link }}" target="_blank" rel="noopener">💬 S'inscrire</a>
+        {% endif %}
+      </article>
+      {% endfor %}
+    </div>
+
+    <div class="facilities">
+      {% for feature in features %}
+      <div class="facility reveal">
+        <span>{{ feature.icon }}</span>
+        <h3>{{ feature.title }}</h3>
+        <p>{{ feature.text }}</p>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="trial reveal">
+      <div>
+        <h3>Première séance offerte</h3>
+        <p>
+          Viens tester la salle gratuitement : accès aux machines, un cours collectif
+          et un bilan avec un coach. Aucun engagement, aucune carte bancaire demandée.
+        </p>
+      </div>
+      <div class="trial__actions">
+        <a class="btn btn--wa" href="{{ business.wa_link }}" target="_blank" rel="noopener">💬 Réserver l'essai</a>
+        <a class="btn btn--outline" href="tel:{{ business.phone_tel }}">📞 {{ business.phone }}</a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block about %}
+<section class="section" id="about">
+  <div class="container">
+    <div class="grid grid--2" style="gap:34px;align-items:center">
+      <div class="reveal">
+        <span class="eyebrow">La salle</span>
+        <h2>Un espace pensé pour progresser</h2>
+        <p style="margin-top:14px">{{ business.description }}</p>
+        <ul style="list-style:none;display:grid;gap:12px;margin-top:22px">
+          <li>✔ Espace cardio : tapis, vélos, rameurs</li>
+          <li>✔ Zone poids libres et racks</li>
+          <li>✔ Cours collectifs : crossfit, boxing, yoga</li>
+          <li>✔ Vestiaires, douches et casiers gratuits</li>
+        </ul>
+        <a class="btn btn--primary" style="margin-top:26px" href="{{ business.maps_link }}" target="_blank" rel="noopener">🧭 Itinéraire vers la salle</a>
+      </div>
+      <div class="reveal" style="border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)">
+        <img src="{{ template_config.gallery[1] }}" alt="Salle {{ business.name }}" loading="lazy" style="width:100%;aspect-ratio:4/3;object-fit:cover">
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

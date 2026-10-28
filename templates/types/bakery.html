@@ -1,0 +1,215 @@
+{# types/bakery.html — gabarit boulangerie : hero chaleureux, grille de produits du four #}
+{% extends "base.html" %}
+{% set color = "#E67E22" %}
+{% set font = "Lora" %}
+{% set template_type = "bakery" %}
+
+{% block head_extra %}
+<style>
+.hero { position: relative; color: #fff; overflow: hidden; }
+.hero__bg { position: absolute; inset: 0; background: url('{{ template_config.hero_image }}') center/cover no-repeat; }
+.hero__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(60, 30, 5, .62) 0%, rgba(60, 30, 5, .8) 60%, rgba(40, 20, 3, .92) 100%);
+}
+.hero__inner { position: relative; z-index: 2; padding: 96px 0 72px; text-align: center; }
+.hero__ribbon {
+  display: inline-block;
+  background: var(--primary-light);
+  color: var(--primary-text);
+  padding: 8px 18px;
+  border-radius: 999px;
+  font-size: .8rem;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  font-weight: 700;
+  margin-bottom: 22px;
+}
+.hero h1 { text-shadow: 0 6px 26px rgba(0, 0, 0, .45); }
+.hero p { color: rgba(255, 244, 233, .92); font-size: 1.06rem; max-width: 660px; margin: 18px auto 0; }
+.hero__actions { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-top: 30px; }
+.hero__hours {
+  display: flex;
+  gap: 24px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 40px;
+  padding-top: 26px;
+  border-top: 1px solid rgba(255, 255, 255, .24);
+  font-size: .9rem;
+  color: rgba(255, 244, 233, .9);
+}
+
+/* --- Grille produits --------------------------------------------------- */
+.bread-grid { display: grid; gap: 22px; grid-template-columns: 1fr; }
+.bread-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.bread-card:hover { transform: translateY(-5px); box-shadow: var(--shadow); }
+.bread-card__media { position: relative; aspect-ratio: 4 / 3; overflow: hidden; background: var(--soft); }
+.bread-card__media img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s ease; }
+.bread-card:hover .bread-card__media img { transform: scale(1.06); }
+.bread-card__flag {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: var(--primary-light);
+  color: var(--primary-text);
+  font-size: .7rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  padding: 5px 12px;
+  border-radius: 999px;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, .12);
+}
+.bread-card__body { padding: 20px 22px 24px; display: flex; flex-direction: column; flex: 1; }
+.bread-card__title { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.bread-card__title h3 { font-size: 1.06rem; font-family: var(--font); }
+.bread-card__price { color: var(--primary-text); font-weight: 700; white-space: nowrap; }
+.bread-card p { font-size: .9rem; margin-top: 8px; }
+@media (min-width: 640px) { .bread-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 980px) { .bread-grid { grid-template-columns: repeat(3, 1fr); } }
+
+/* --- Savoir-faire ----------------------------------------------------- */
+.craft { display: grid; gap: 30px; align-items: center; }
+.craft__img { border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
+.craft__img img { aspect-ratio: 4 / 5; object-fit: cover; width: 100%; }
+.craft__list { display: grid; gap: 16px; margin-top: 24px; }
+.craft__item { display: flex; gap: 14px; align-items: flex-start; }
+.craft__item span { font-size: 1.5rem; }
+.craft__item h3 { font-size: 1rem; }
+.craft__item p { font-size: .89rem; margin-top: 3px; }
+@media (min-width: 900px) { .craft { grid-template-columns: .85fr 1.15fr; gap: 52px; } }
+
+/* --- Précommande ------------------------------------------------------ */
+.preorder {
+  background: var(--primary-light);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 34px 30px;
+  display: grid;
+  gap: 22px;
+  align-items: center;
+  margin-top: 46px;
+}
+.preorder h3 { font-size: 1.3rem; color: var(--primary-text); }
+.preorder p { color: var(--ink); margin-top: 8px; }
+.preorder__actions { display: flex; gap: 12px; flex-wrap: wrap; }
+@media (min-width: 860px) { .preorder { grid-template-columns: 1.5fr 1fr; padding: 40px; } }
+</style>
+{% endblock %}
+
+{% block hero %}
+<section class="hero">
+  <div class="hero__bg"></div>
+  <div class="hero__overlay"></div>
+  <div class="container hero__inner">
+    <span class="hero__ribbon">🥖 Sorti du four chaque matin</span>
+    <h1>{{ business.name }}</h1>
+    <p>{{ business.description }}</p>
+    <div class="hero__actions">
+      <a class="btn btn--primary" href="#services">Voir nos produits</a>
+      <a class="btn btn--wa" href="{{ business.wa_link }}" target="_blank" rel="noopener">💬 Passer commande</a>
+    </div>
+    <div class="hero__hours">
+      <span>📍 {{ business.address }}</span>
+      <span>🕒 {{ business.hours.get('Lundi', '06:00 - 21:00') }}</span>
+      <span>📞 <a href="tel:{{ business.phone_tel }}" style="color:#FFF3E2;font-weight:600">{{ business.phone }}</a></span>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block services %}
+<section class="section" id="services">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">Au comptoir</span>
+      <h2>Pains, viennoiseries &amp; pâtisseries</h2>
+      <p>Tout est préparé sur place, avec de la farine de qualité et du levain naturel.</p>
+    </div>
+
+    <div class="bread-grid">
+      {% for product in products %}
+      <article class="bread-card reveal">
+        <div class="bread-card__media">
+          {% if product.badge %}<span class="bread-card__flag">{{ product.badge }}</span>{% endif %}
+          <img src="{{ product.image }}" alt="{{ product.name }}" loading="lazy">
+        </div>
+        <div class="bread-card__body">
+          <div class="bread-card__title">
+            <h3>{{ product.name }}</h3>
+            <span class="bread-card__price">{{ product.price }} {{ currency }}</span>
+          </div>
+          <p>{{ product.desc }}</p>
+          {% if is_ecommerce %}
+          <button class="btn btn--primary add-to-cart" type="button"
+                  data-name="{{ product.name }}" data-price="{{ product.price }}" data-image="{{ product.image }}">
+            🛒 Ajouter au panier
+          </button>
+          {% else %}
+          <a class="btn btn--ghost" style="margin-top:14px" href="{{ business.wa_link }}" target="_blank" rel="noopener">💬 Réserver</a>
+          {% endif %}
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+
+    <div class="preorder reveal">
+      <div>
+        <h3>Commandez vos gâteaux et plateaux à l'avance</h3>
+        <p>
+          Anniversaires, mariages, réunions de famille : nous préparons vos commandes
+          sur mesure. Comptez 48h de délai, et 72h pour les grosses pièces montées.
+        </p>
+      </div>
+      <div class="preorder__actions">
+        <a class="btn btn--primary" href="{{ business.wa_link }}" target="_blank" rel="noopener">📝 Demander un devis</a>
+        <a class="btn btn--dark" href="tel:{{ business.phone_tel }}">📞 {{ business.phone }}</a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block about %}
+<section class="section section--soft" id="about">
+  <div class="container">
+    <div class="craft">
+      <div class="craft__img reveal">
+        <img src="{{ template_config.gallery[2] }}" alt="Fournil de {{ business.name }}" loading="lazy">
+      </div>
+      <div class="reveal">
+        <span class="eyebrow">Notre fournil</span>
+        <h2>Le savoir-faire d'une boulangerie familiale</h2>
+        <p style="margin-top:16px">
+          Chaque nuit, nos boulangers pétrissent, façonnent et cuisent sur place.
+          Rien n'est congelé, rien n'arrive tout prêt : c'est ce qui fait la différence
+          dans l'assiette. Venez tôt le matin, c'est à ce moment que tout sort du four.
+        </p>
+        <div class="craft__list">
+          {% for feature in features %}
+          <div class="craft__item">
+            <span>{{ feature.icon }}</span>
+            <div>
+              <h3>{{ feature.title }}</h3>
+              <p>{{ feature.text }}</p>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        <a class="btn btn--primary" style="margin-top:28px" href="{{ business.maps_link }}" target="_blank" rel="noopener">🧭 Trouver la boulangerie</a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

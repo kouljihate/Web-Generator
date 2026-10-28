@@ -1,0 +1,108 @@
+{# partials/_map.html — carte Google Maps intégrée + coordonnées #}
+<style>
+.contact-wrap { display: grid; gap: 26px; align-items: stretch; }
+.map-frame {
+  border: 0;
+  width: 100%;
+  min-height: 340px;
+  height: 100%;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  background: var(--soft);
+}
+.contact-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 28px;
+  box-shadow: var(--shadow-sm);
+}
+.contact-list { list-style: none; display: grid; gap: 16px; margin-top: 20px; }
+.contact-list li { display: flex; gap: 12px; align-items: flex-start; font-size: .95rem; }
+.contact-list .ico {
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 11px;
+  background: var(--primary-light);
+  color: var(--primary-soft-text);
+  font-size: 1.05rem;
+}
+.contact-list strong { display: block; font-size: .95rem; color: var(--ink); }
+.contact-list span { color: var(--muted); font-size: .89rem; }
+.contact-actions { display: grid; gap: 10px; margin-top: 24px; }
+@media (min-width: 560px) { .contact-actions { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 900px) {
+  .contact-wrap { grid-template-columns: 1.15fr 1fr; gap: 34px; }
+}
+</style>
+<section class="section section--soft" id="contact">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">Contact &amp; accès</span>
+      <h2>Venez nous voir ou écrivez-nous</h2>
+      <p>{{ business.address }}</p>
+    </div>
+
+    <div class="contact-wrap">
+      <iframe
+        class="map-frame reveal"
+        src="https://maps.google.com/maps?q={{ business.address }}&z=15&output=embed"
+        title="Carte de {{ business.name }}"
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"
+        allowfullscreen></iframe>
+
+      <div class="contact-card reveal">
+        <h3>{{ business.name }}</h3>
+        <p class="small" style="margin-top:8px">{{ business.description }}</p>
+
+        <ul class="contact-list">
+          <li>
+            <span class="ico">📍</span>
+            <span><strong>Adresse</strong><span>{{ business.address }}</span></span>
+          </li>
+          <li>
+            <span class="ico">📞</span>
+            <span><strong>Téléphone</strong>
+              <a href="tel:{{ business.phone_tel }}">{{ business.phone }}</a></span>
+          </li>
+          <li>
+            <span class="ico">💬</span>
+            <span><strong>WhatsApp</strong>
+              <a href="{{ business.wa_link }}" target="_blank" rel="noopener">+{{ business.whatsapp }}</a></span>
+          </li>
+          {% if business.rating %}
+          <li>
+            <span class="ico">★</span>
+            <span><strong>Note clients</strong>
+              <span class="rating">{{ '%.1f'|format(business.rating) }}/5</span>
+              {% if business.reviews %}<span> · {{ business.reviews }} avis</span>{% endif %}</span>
+          </li>
+          {% endif %}
+          <li>
+            <span class="ico">🕒</span>
+            <span><strong>Aujourd'hui</strong><span id="todayHours">Voir le tableau des horaires</span></span>
+          </li>
+        </ul>
+
+        <div class="contact-actions">
+          <a class="btn btn--primary btn--block" href="tel:{{ business.phone_tel }}">📞 Appeler maintenant</a>
+          <a class="btn btn--dark btn--block" href="{{ business.maps_link }}" target="_blank" rel="noopener">🧭 Itinéraire</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<script>
+/* Affiche dans la carte de contact l'horaire du jour courant. */
+(function () {
+  var hours = {{ business.hours|tojson }};
+  var days = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
+  var today = days[new Date().getDay()];
+  var target = document.getElementById('todayHours');
+  if (target && hours[today]) { target.textContent = today + ' : ' + hours[today]; }
+})();
+</script>

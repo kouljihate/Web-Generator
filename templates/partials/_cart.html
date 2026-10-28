@@ -1,0 +1,394 @@
+{# partials/_cart.html — panier e-commerce + commande WhatsApp (version B) #}
+<style>
+/* --- Bandeau "commande en ligne" ---------------------------------------- */
+.order-band {
+  display: grid;
+  gap: 20px;
+  align-items: center;
+  background: var(--primary);
+  color: var(--on-primary);
+  border-radius: var(--radius);
+  padding: 30px 28px;
+  box-shadow: var(--shadow);
+}
+.order-band h2 { color: var(--on-primary); }
+.order-band p { color: var(--on-primary); opacity: .92; margin-top: 8px; }
+.order-band .btn--dark { background: var(--dark); color: #fff; }
+.order-steps { display: grid; gap: 12px; margin-top: 18px; }
+.order-steps div { display: flex; align-items: center; gap: 10px; font-size: .93rem; }
+.order-steps .step {
+  width: 26px;
+  height: 26px;
+  flex: 0 0 26px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  /* Cercle tracé dans la couleur du texte du bandeau : lisible que le bandeau
+     soit clair (thèmes pâles) ou sombre (thèmes foncés). */
+  border: 2px solid currentColor;
+  font-size: .8rem;
+  font-weight: 700;
+}
+@media (min-width: 860px) { .order-band { grid-template-columns: 1.3fr 1fr; padding: 40px; } }
+
+/* --- Bouton panier flottant -------------------------------------------- */
+.cart-fab {
+  position: fixed;
+  right: 18px;
+  bottom: 86px;
+  z-index: 80;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 13px 20px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--dark);
+  color: #fff;
+  font-family: inherit;
+  font-size: .92rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 12px 28px rgba(16, 24, 40, .3);
+  transition: transform .2s ease;
+}
+.cart-fab:hover { transform: translateY(-2px); }
+.cart-fab__count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--primary);
+  color: var(--on-primary);
+  font-size: .78rem;
+}
+.cart-fab__total { opacity: .8; }
+
+/* --- Tiroir panier ----------------------------------------------------- */
+.cart-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(12, 15, 18, .5);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .28s ease, visibility .28s ease;
+  z-index: 90;
+}
+.cart-overlay.is-open { opacity: 1; visibility: visible; }
+.cart-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 100;
+  width: min(420px, 100%);
+  height: 100%;
+  background: var(--surface);
+  display: flex;
+  flex-direction: column;
+  transform: translateX(105%);
+  transition: transform .3s ease;
+  box-shadow: -14px 0 40px rgba(16, 24, 40, .18);
+}
+.cart-drawer.is-open { transform: none; }
+.cart-drawer__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 22px;
+  border-bottom: 1px solid var(--line);
+}
+.cart-drawer__head h3 { font-size: 1.05rem; }
+.cart-close {
+  border: 0;
+  background: var(--soft);
+  color: var(--ink);
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+.cart-items { flex: 1; overflow-y: auto; padding: 16px 22px; display: grid; gap: 14px; align-content: start; }
+.cart-item { display: grid; grid-template-columns: 62px 1fr auto; gap: 12px; align-items: center; border-bottom: 1px solid var(--line); padding-bottom: 14px; }
+.cart-item img { width: 62px; height: 62px; object-fit: cover; border-radius: 12px; background: var(--soft); }
+.cart-item strong { display: block; font-size: .93rem; }
+.cart-item .qty { display: inline-flex; align-items: center; gap: 8px; margin-top: 6px; }
+.cart-item .qty button {
+  width: 26px;
+  height: 26px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: .95rem;
+  line-height: 1;
+}
+.cart-item__price { font-weight: 700; color: var(--primary-text); white-space: nowrap; }
+.cart-item__remove { border: 0; background: transparent; color: var(--muted); cursor: pointer; font-size: .8rem; text-decoration: underline; }
+.cart-empty { padding: 40px 22px; text-align: center; color: var(--muted); font-size: .93rem; }
+.cart-drawer__foot { border-top: 1px solid var(--line); padding: 20px 22px; display: grid; gap: 12px; background: var(--soft); }
+.cart-total { display: flex; justify-content: space-between; align-items: baseline; font-size: 1rem; }
+.cart-total strong { font-size: 1.3rem; color: var(--primary-text); }
+.cart-hint { font-size: .8rem; color: var(--muted); text-align: center; }
+
+/* --- Boutons "Ajouter au panier" -------------------------------------- */
+.add-to-cart { width: 100%; margin-top: 14px; }
+.product-added { animation: pop .35s ease; }
+@keyframes pop { 0% { transform: scale(1); } 45% { transform: scale(1.06); } 100% { transform: scale(1); } }
+</style>
+
+<section class="section" id="commander">
+  <div class="container">
+    <div class="order-band reveal">
+      <div>
+        <h2>Commandez en ligne, payez à la livraison</h2>
+        <p>
+          Choisissez vos articles dans le catalogue ci-dessus, ajoutez-les au panier
+          et validez : votre commande part directement sur le WhatsApp de
+          {{ business.name }}, sans inscription ni paiement en ligne.
+        </p>
+        <div class="order-steps">
+          <div><span class="step">1</span> Ajoutez vos articles au panier</div>
+          <div><span class="step">2</span> Vérifiez votre commande et le total</div>
+          <div><span class="step">3</span> Confirmez sur WhatsApp, on vous rappelle</div>
+        </div>
+      </div>
+      <div style="display:grid; gap:10px">
+        <button class="btn btn--dark btn--block" type="button" id="orderOpenCart">🛒 Voir mon panier</button>
+        <a class="btn btn--wa btn--block" href="{{ business.wa_link }}" target="_blank" rel="noopener">💬 Commander directement</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<button class="cart-fab" type="button" id="cartFab" aria-controls="cartDrawer" aria-expanded="false">
+  🛒 <span class="cart-fab__count" id="cartCount">0</span>
+  <span class="cart-fab__total" id="cartFabTotal">0 DH</span>
+</button>
+
+<div class="cart-overlay" id="cartOverlay"></div>
+
+<aside class="cart-drawer" id="cartDrawer" aria-hidden="true" aria-label="Panier">
+  <div class="cart-drawer__head">
+    <h3>Votre commande</h3>
+    <button class="cart-close" type="button" id="cartClose" aria-label="Fermer le panier">✕</button>
+  </div>
+
+  <div class="cart-items" id="cartItems"></div>
+  <div class="cart-empty" id="cartEmpty">Votre panier est vide.<br>Ajoutez un article du catalogue.</div>
+
+  <div class="cart-drawer__foot">
+    <div class="cart-total">
+      <span>Total à payer</span>
+      <strong id="cartTotal">0 DH</strong>
+    </div>
+    <button class="btn btn--wa btn--block" type="button" id="cartCheckout">💬 Commander sur WhatsApp</button>
+    <button class="btn btn--ghost btn--block" type="button" id="cartClear">Vider le panier</button>
+    <span class="cart-hint">Aucun paiement en ligne — règlement à la livraison ou en boutique.</span>
+  </div>
+</aside>
+
+<script>
+/* =========================================================================
+   Panier client — 100 % front, commande envoyée sur WhatsApp.
+   ========================================================================= */
+(function () {
+  var CURRENCY = '{{ currency }}';
+  var SHOP_PHONE = '{{ business.whatsapp }}';
+  var SHOP_NAME = {{ business.name|tojson }};
+  var STORAGE_KEY = 'sbp-cart-{{ business.whatsapp }}';
+  var cart = [];
+
+  var els = {
+    fab: document.getElementById('cartFab'),
+    count: document.getElementById('cartCount'),
+    fabTotal: document.getElementById('cartFabTotal'),
+    drawer: document.getElementById('cartDrawer'),
+    overlay: document.getElementById('cartOverlay'),
+    items: document.getElementById('cartItems'),
+    empty: document.getElementById('cartEmpty'),
+    total: document.getElementById('cartTotal'),
+    checkout: document.getElementById('cartCheckout'),
+    clear: document.getElementById('cartClear'),
+    close: document.getElementById('cartClose'),
+    openCart: document.getElementById('orderOpenCart')
+  };
+
+  function formatPrice(value) {
+    return Number(value || 0).toLocaleString('fr-FR') + ' ' + CURRENCY;
+  }
+
+  function save() {
+    try {
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
+    } catch (error) {
+      /* navigation privée : le panier reste en mémoire */
+    }
+  }
+
+  function restore() {
+    try {
+      var raw = window.localStorage.getItem(STORAGE_KEY);
+      if (raw) { cart = JSON.parse(raw) || []; }
+    } catch (error) {
+      cart = [];
+    }
+    if (!Array.isArray(cart)) { cart = []; }
+  }
+
+  function findItem(name) {
+    for (var i = 0; i < cart.length; i += 1) {
+      if (cart[i].name === name) { return cart[i]; }
+    }
+    return null;
+  }
+
+  function addToCart(name, price, image) {
+    var existing = findItem(name);
+    if (existing) {
+      existing.qty += 1;
+    } else {
+      cart.push({ name: name, price: Number(price) || 0, image: image || '', qty: 1 });
+    }
+    save();
+    updateCartUI();
+    openCart();
+  }
+
+  function changeQty(name, delta) {
+    var item = findItem(name);
+    if (!item) { return; }
+    item.qty += delta;
+    if (item.qty <= 0) { removeItem(name); return; }
+    save();
+    updateCartUI();
+  }
+
+  function removeItem(name) {
+    cart = cart.filter(function (item) { return item.name !== name; });
+    save();
+    updateCartUI();
+  }
+
+  function cartCount() {
+    return cart.reduce(function (sum, item) { return sum + item.qty; }, 0);
+  }
+
+  function cartTotal() {
+    return cart.reduce(function (sum, item) { return sum + item.qty * item.price; }, 0);
+  }
+
+  function updateCartUI() {
+    var total = cartTotal();
+    if (els.count) { els.count.textContent = cartCount(); }
+    if (els.fabTotal) { els.fabTotal.textContent = formatPrice(total); }
+    if (els.total) { els.total.textContent = formatPrice(total); }
+    if (!els.items) { return; }
+
+    els.items.innerHTML = '';
+    if (!cart.length) {
+      if (els.empty) { els.empty.style.display = 'block'; }
+      return;
+    }
+    if (els.empty) { els.empty.style.display = 'none'; }
+
+    cart.forEach(function (item) {
+      var row = document.createElement('div');
+      row.className = 'cart-item';
+      row.innerHTML =
+        '<img src="' + (item.image || '') + '" alt="">' +
+        '<div><strong></strong>' +
+        '<span class="qty">' +
+        '<button type="button" data-action="minus" aria-label="Retirer">−</button>' +
+        '<span>' + item.qty + '</span>' +
+        '<button type="button" data-action="plus" aria-label="Ajouter">+</button>' +
+        '</span>' +
+        '<div><button type="button" class="cart-item__remove" data-action="remove">Supprimer</button></div>' +
+        '</div>' +
+        '<span class="cart-item__price">' + formatPrice(item.qty * item.price) + '</span>';
+      row.querySelector('strong').textContent = item.name;
+      row.querySelectorAll('button[data-action]').forEach(function (button) {
+        button.addEventListener('click', function () {
+          var action = button.getAttribute('data-action');
+          if (action === 'plus') { changeQty(item.name, 1); }
+          if (action === 'minus') { changeQty(item.name, -1); }
+          if (action === 'remove') { removeItem(item.name); }
+        });
+      });
+      els.items.appendChild(row);
+    });
+  }
+
+  function openCart() {
+    if (!els.drawer) { return; }
+    els.drawer.classList.add('is-open');
+    els.drawer.setAttribute('aria-hidden', 'false');
+    if (els.overlay) { els.overlay.classList.add('is-open'); }
+    if (els.fab) { els.fab.setAttribute('aria-expanded', 'true'); }
+  }
+
+  function closeCart() {
+    if (!els.drawer) { return; }
+    els.drawer.classList.remove('is-open');
+    els.drawer.setAttribute('aria-hidden', 'true');
+    if (els.overlay) { els.overlay.classList.remove('is-open'); }
+    if (els.fab) { els.fab.setAttribute('aria-expanded', 'false'); }
+  }
+
+  /* Construit le message WhatsApp puis ouvre la discussion. */
+  function checkoutWhatsApp() {
+    if (!cart.length) {
+      openCart();
+      return;
+    }
+    var lines = cart.map(function (item) {
+      return '- ' + item.qty + ' x ' + item.name + ' : ' + formatPrice(item.qty * item.price);
+    });
+    var message =
+      'Bonjour ' + SHOP_NAME + ' !' + '\n\n' +
+      'Je souhaite commander :' + '\n' +
+      lines.join('\n') + '\n\n' +
+      'Total : ' + formatPrice(cartTotal()) + '\n\n' +
+      'Adresse de livraison : ' + '\n' +
+      'Nom : ';
+    var url = 'https://wa.me/' + SHOP_PHONE + '?text=' + encodeURIComponent(message);
+    window.open(url, '_blank');
+  }
+
+  /* Ajout au panier depuis n'importe quelle carte du catalogue. */
+  document.addEventListener('click', function (event) {
+    var button = event.target.closest('.add-to-cart');
+    if (!button) { return; }
+    event.preventDefault();
+    addToCart(
+      button.getAttribute('data-name') || 'Article',
+      parseFloat(button.getAttribute('data-price') || '0'),
+      button.getAttribute('data-image') || ''
+    );
+    button.classList.add('product-added');
+    window.setTimeout(function () { button.classList.remove('product-added'); }, 400);
+  });
+
+  if (els.fab) { els.fab.addEventListener('click', openCart); }
+  if (els.openCart) { els.openCart.addEventListener('click', openCart); }
+  if (els.close) { els.close.addEventListener('click', closeCart); }
+  if (els.overlay) { els.overlay.addEventListener('click', closeCart); }
+  if (els.checkout) { els.checkout.addEventListener('click', checkoutWhatsApp); }
+  if (els.clear) {
+    els.clear.addEventListener('click', function () {
+      cart = [];
+      save();
+      updateCartUI();
+    });
+  }
+  document.addEventListener('keydown', function (event) {
+    if (event.key === 'Escape') { closeCart(); }
+  });
+
+  restore();
+  updateCartUI();
+})();
+</script>

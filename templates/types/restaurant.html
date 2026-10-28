@@ -1,0 +1,228 @@
+{# types/restaurant.html — gabarit restaurant : hero plein écran + carte en 3 colonnes #}
+{% extends "base.html" %}
+{% set color = "#E74C3C" %}
+{% set font = "Poppins" %}
+{% set template_type = "restaurant" %}
+
+{% block head_extra %}
+<style>
+.hero {
+  position: relative;
+  min-height: 88vh;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  color: #fff;
+  overflow: hidden;
+}
+.hero__bg {
+  position: absolute;
+  inset: 0;
+  background: url('{{ template_config.hero_image }}') center/cover no-repeat;
+  transform: scale(1.03);
+}
+.hero__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(12, 10, 10, .62) 0%, rgba(12, 10, 10, .86) 100%);
+}
+.hero__inner { position: relative; z-index: 2; padding: 110px 20px 80px; max-width: 900px; }
+.hero__flag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 16px;
+  border: 1px solid rgba(255, 255, 255, .45);
+  border-radius: 999px;
+  font-size: .82rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  margin-bottom: 22px;
+}
+.hero h1 { text-shadow: 0 6px 30px rgba(0, 0, 0, .5); }
+.hero h1 span { color: var(--primary-tint); display: block; }
+.hero p {
+  color: rgba(255, 255, 255, .92);
+  font-size: 1.08rem;
+  max-width: 640px;
+  margin: 20px auto 0;
+}
+.hero__actions { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-top: 34px; }
+.hero__stats {
+  display: flex;
+  gap: 34px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 48px;
+  padding-top: 28px;
+  border-top: 1px solid rgba(255, 255, 255, .22);
+}
+.hero__stats div { text-align: center; }
+.hero__stats strong { display: block; font-size: 1.5rem; color: #fff; }
+.hero__stats span { font-size: .8rem; color: rgba(255, 255, 255, .88); letter-spacing: .05em; text-transform: uppercase; }
+
+/* --- Carte / menu ------------------------------------------------------- */
+.menu-grid { display: grid; gap: 22px; grid-template-columns: 1fr; }
+.dish { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; transition: transform .2s ease, box-shadow .2s ease; }
+.dish:hover { transform: translateY(-5px); box-shadow: var(--shadow); }
+.dish__media { aspect-ratio: 5 / 4; overflow: hidden; position: relative; background: var(--soft); }
+.dish__media img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s ease; }
+.dish:hover .dish__media img { transform: scale(1.07); }
+.dish__price {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  background: var(--primary);
+  color: var(--on-primary);
+  font-weight: 700;
+  padding: 7px 14px;
+  border-radius: 999px;
+  font-size: .92rem;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, .22);
+}
+.dish__body { padding: 18px 20px 22px; display: flex; flex-direction: column; flex: 1; }
+.dish__body h3 { font-size: 1.08rem; }
+.dish__body p { font-size: .9rem; margin-top: 6px; }
+@media (min-width: 640px) { .menu-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 960px) { .menu-grid { grid-template-columns: repeat(3, 1fr); } }
+
+/* --- Pourquoi nous choisir -------------------------------------------- */
+.why { display: grid; gap: 20px; }
+.why__card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-left: 5px solid var(--primary);
+  border-radius: var(--radius);
+  padding: 28px 24px;
+  box-shadow: var(--shadow-sm);
+}
+.why__icon {
+  width: 54px;
+  height: 54px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  background: var(--primary-light);
+  font-size: 1.6rem;
+  margin-bottom: 16px;
+}
+.why__card h3 { margin-bottom: 8px; }
+.why__card p { font-size: .93rem; }
+@media (min-width: 800px) { .why { grid-template-columns: repeat(3, 1fr); } }
+
+.about-split { display: grid; gap: 30px; align-items: center; }
+@media (min-width: 900px) { .about-split { grid-template-columns: 1fr 1fr; gap: 48px; } }
+.about-split__img { border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); aspect-ratio: 4 / 3; }
+.about-split__img img { width: 100%; height: 100%; object-fit: cover; }
+.about-facts { display: grid; gap: 14px; margin-top: 24px; }
+.about-facts div { display: flex; gap: 12px; align-items: center; font-size: .95rem; }
+.about-facts b { color: var(--primary-text); }
+</style>
+{% endblock %}
+
+{% block hero %}
+<section class="hero">
+  <div class="hero__bg"></div>
+  <div class="hero__overlay"></div>
+  <div class="hero__inner">
+    <span class="hero__flag">🍽️ Restaurant à {{ business.city }}</span>
+    <h1>{{ business.name }}<span>La cuisine marocaine comme à la maison</span></h1>
+    <p>{{ business.description }}</p>
+    <div class="hero__actions">
+      <a class="btn btn--primary" href="#services">Voir le menu</a>
+      <a class="btn btn--wa" href="{{ business.wa_link }}" target="_blank" rel="noopener">💬 Commander sur WhatsApp</a>
+    </div>
+    <div class="hero__stats">
+      {% if business.rating %}
+      <div><strong>★ {{ '%.1f'|format(business.rating) }}</strong><span>Note clients</span></div>
+      {% endif %}
+      <div><strong>30+</strong><span>Plats au menu</span></div>
+      <div><strong>15 min</strong><span>Service rapide</span></div>
+      {% if business.reviews %}
+      <div><strong>{{ business.reviews }}</strong><span>Avis</span></div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block about %}
+<section class="section" id="about">
+  <div class="container">
+    <div class="about-split">
+      <div class="reveal">
+        <span class="eyebrow">Notre maison</span>
+        <h2>Une cuisine généreuse, préparée chaque jour</h2>
+        <p style="margin-top:14px">{{ business.description }}</p>
+        <div class="about-facts">
+          <div><b>✔</b> Produits frais achetés chaque matin au marché</div>
+          <div><b>✔</b> Recettes familiales transmises depuis trois générations</div>
+          <div><b>✔</b> Salle climatisée, terrasse et espace famille</div>
+          <div><b>✔</b> Livraison dans tout le quartier {{ business.street or business.city }}</div>
+        </div>
+        <a class="btn btn--primary" style="margin-top:26px" href="tel:{{ business.phone_tel }}">📞 Réserver une table : {{ business.phone }}</a>
+      </div>
+      <div class="about-split__img reveal">
+        <img src="{{ template_config.gallery[1] }}" alt="Plat signature de {{ business.name }}" loading="lazy">
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section--soft">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">Pourquoi nous choisir</span>
+      <h2>Trois raisons de venir chez nous</h2>
+    </div>
+    <div class="why">
+      {% for feature in features %}
+      <article class="why__card reveal">
+        <div class="why__icon">{{ feature.icon }}</div>
+        <h3>{{ feature.title }}</h3>
+        <p>{{ feature.text }}</p>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block services %}
+<section class="section" id="services">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">Notre carte</span>
+      <h2>Les plats les plus commandés</h2>
+      <p>Préparés à la commande, servis en salle ou à emporter.</p>
+    </div>
+
+    <div class="menu-grid">
+      {% for product in products %}
+      <article class="dish reveal">
+        <div class="dish__media">
+          <img src="{{ product.image }}" alt="{{ product.name }}" loading="lazy">
+          <span class="dish__price">{{ product.price }} {{ currency }}</span>
+        </div>
+        <div class="dish__body">
+          <h3>{{ product.name }}</h3>
+          <p>{{ product.desc }}</p>
+          {% if is_ecommerce %}
+          <button class="btn btn--primary add-to-cart" type="button"
+                  data-name="{{ product.name }}" data-price="{{ product.price }}" data-image="{{ product.image }}">
+            🛒 Ajouter au panier
+          </button>
+          {% else %}
+          <span class="btn btn--ghost" style="margin-top:14px">👨‍🍳 Fait maison</span>
+          {% endif %}
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+
+    <p class="small muted" style="text-align:center;margin-top:30px">
+      Carte complète disponible en salle · Allergies ? Prévenez-nous au {{ business.phone }}
+    </p>
+  </div>
+</section>
+{% endblock %}

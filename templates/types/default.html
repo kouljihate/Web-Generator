@@ -1,0 +1,182 @@
+{# types/default.html — gabarit générique : hero sobre, à propos, 3 services, contact #}
+{% extends "base.html" %}
+{% set color = "#34495E" %}
+{% set font = "Inter" %}
+{% set template_type = "default" %}
+
+{% block head_extra %}
+<style>
+.hero { position: relative; color: #fff; overflow: hidden; }
+.hero__bg { position: absolute; inset: 0; background: url('{{ template_config.hero_image }}') center/cover no-repeat; }
+.hero__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, rgba(20, 24, 29, .94) 0%, rgba(20, 24, 29, .78) 55%, rgba(20, 24, 29, .58) 100%);
+}
+.hero__grid { position: relative; z-index: 2; display: grid; gap: 34px; padding: 84px 0 76px; align-items: center; }
+.hero h1 { font-size: clamp(2rem, 4.6vw, 3.1rem); }
+.hero p { color: #D3DAE1; font-size: 1.04rem; margin-top: 18px; max-width: 560px; }
+.hero__actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 28px; }
+.hero__card {
+  background: rgba(255, 255, 255, .07);
+  border: 1px solid rgba(255, 255, 255, .18);
+  border-radius: var(--radius);
+  padding: 28px 26px;
+  backdrop-filter: blur(6px);
+}
+.hero__card h3 { color: #fff; font-size: 1rem; }
+.hero__card ul { list-style: none; display: grid; gap: 14px; margin-top: 18px; }
+.hero__card li { display: flex; justify-content: space-between; gap: 14px; font-size: .92rem; color: #D3DAE1; }
+.hero__card li strong { color: #fff; }
+@media (min-width: 900px) { .hero__grid { grid-template-columns: 1.25fr .75fr; gap: 50px; padding: 96px 0 88px; } }
+
+/* --- À propos --------------------------------------------------------- */
+.about { display: grid; gap: 34px; align-items: center; }
+.about__img { border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
+.about__img img { width: 100%; aspect-ratio: 5 / 4; object-fit: cover; }
+.about__stats { display: grid; gap: 18px; margin-top: 26px; grid-template-columns: repeat(2, 1fr); }
+.about__stats div { background: var(--soft); border-radius: var(--radius-sm); padding: 16px 18px; }
+.about__stats strong { display: block; font-size: 1.35rem; color: var(--primary-text); }
+.about__stats span { font-size: .82rem; color: var(--muted); }
+@media (min-width: 900px) { .about { grid-template-columns: 1fr 1fr; gap: 52px; } }
+
+/* --- Services --------------------------------------------------------- */
+.service {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 30px 26px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.service:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
+.service__num {
+  width: 46px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  background: var(--primary);
+  color: var(--on-primary);
+  font-weight: 700;
+  margin-bottom: 18px;
+}
+.service h3 { font-size: 1.1rem; }
+.service p { font-size: .92rem; margin-top: 8px; }
+.service .price-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px dashed var(--line);
+}
+.service .price-row strong { color: var(--primary-text); font-size: 1.15rem; }
+.service .btn { margin-top: 14px; }
+</style>
+{% endblock %}
+
+{% block hero %}
+<section class="hero">
+  <div class="hero__bg"></div>
+  <div class="hero__overlay"></div>
+  <div class="container hero__grid">
+    <div class="reveal">
+      <span class="eyebrow" style="color:#9FB3C8">{{ template_config.name }} · {{ business.city }}</span>
+      <h1>{{ business.name }}</h1>
+      <p>{{ business.description }}</p>
+      <div class="hero__actions">
+        <a class="btn btn--primary" href="#services">Nos prestations</a>
+        <a class="btn btn--wa" href="{{ business.wa_link }}" target="_blank" rel="noopener">💬 Nous écrire</a>
+      </div>
+    </div>
+    <aside class="hero__card reveal">
+      <h3>Informations pratiques</h3>
+      <ul>
+        <li><strong>Adresse</strong><span>{{ business.street or business.city }}</span></li>
+        <li><strong>Téléphone</strong><span>{{ business.phone }}</span></li>
+        <li><strong>Ouverture</strong><span>{{ business.hours.get('Lundi', '09:00 - 20:00') }}</span></li>
+        {% if business.rating %}<li><strong>Note</strong><span>★ {{ '%.1f'|format(business.rating) }}/5</span></li>{% endif %}
+      </ul>
+      <a class="btn btn--outline btn--block" style="margin-top:22px" href="tel:{{ business.phone_tel }}">📞 Appeler maintenant</a>
+    </aside>
+  </div>
+</section>
+{% endblock %}
+
+{% block about %}
+<section class="section" id="about">
+  <div class="container">
+    <div class="about">
+      <div class="about__img reveal">
+        <img src="{{ template_config.gallery[0] }}" alt="{{ business.name }}" loading="lazy">
+      </div>
+      <div class="reveal">
+        <span class="eyebrow">À propos</span>
+        <h2>Un partenaire de confiance à {{ business.city }}</h2>
+        <p style="margin-top:16px">
+          Situé {{ business.address }}, {{ business.name }} accompagne ses clients du
+          quartier avec sérieux et transparence. Notre équipe prend le temps
+          d'expliquer, de conseiller et de proposer la solution la plus juste.
+        </p>
+        <div class="about__stats">
+          <div><strong>{{ business.year - 2015 }}+</strong><span>Années d'expérience</span></div>
+          {% if business.reviews %}<div><strong>{{ business.reviews }}</strong><span>Avis clients</span></div>{% endif %}
+          <div><strong>24h</strong><span>Délai de réponse</span></div>
+          <div><strong>100%</strong><span>Prix affichés</span></div>
+        </div>
+        <div class="grid grid--3" style="margin-top:28px">
+          {% for feature in features %}
+          <div>
+            <div style="font-size:1.5rem">{{ feature.icon }}</div>
+            <h3 style="font-size:1rem;margin-top:8px">{{ feature.title }}</h3>
+            <p class="small">{{ feature.text }}</p>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block services %}
+<section class="section section--soft" id="services">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">Prestations</span>
+      <h2>Ce que nous faisons pour vous</h2>
+      <p>Des tarifs clairs et un travail soigné, à chaque intervention.</p>
+    </div>
+
+    <div class="grid grid--3">
+      {% for product in products %}
+      <article class="service reveal">
+        <span class="service__num">{{ '%02d'|format(loop.index) }}</span>
+        <h3>{{ product.name }}</h3>
+        <p>{{ product.desc }}</p>
+        <div class="price-row">
+          <span class="small muted">À partir de</span>
+          <strong>{{ product.price }} {{ currency }}</strong>
+        </div>
+        {% if is_ecommerce %}
+        <button class="btn btn--primary add-to-cart" type="button"
+                data-name="{{ product.name }}" data-price="{{ product.price }}" data-image="{{ product.image }}">
+          🛒 Réserver
+        </button>
+        {% else %}
+        <a class="btn btn--ghost" href="{{ business.wa_link }}" target="_blank" rel="noopener">💬 Demander un devis</a>
+        {% endif %}
+      </article>
+      {% endfor %}
+    </div>
+
+    <p class="small muted" style="text-align:center;margin-top:30px">
+      Un besoin particulier ? Appelez-nous au {{ business.phone }}, nous étudions chaque demande.
+    </p>
+  </div>
+</section>
+{% endblock %}

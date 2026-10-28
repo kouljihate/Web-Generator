@@ -1,0 +1,111 @@
+{# partials/_header.html — en-tête collant : logo, navigation, bouton d'appel #}
+{% set menu_labels = {
+  'restaurant': 'Notre carte',
+  'cafe': 'Notre carte',
+  'salon': 'Prestations',
+  'shop': 'Collection',
+  'pharmacy': 'Produits',
+  'bakery': 'Nos produits',
+  'gym': 'Abonnements',
+  'default': 'Prestations'
+} %}
+<style>
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 70;
+  background: var(--surface-glass);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--line);
+}
+.site-header__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 70px;
+}
+.logo { display: flex; align-items: center; gap: 12px; }
+.logo__mark {
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: var(--primary);
+  color: var(--on-primary);
+  font-size: 1.25rem;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, .18);
+}
+.logo__text { display: flex; flex-direction: column; line-height: 1.15; }
+.logo__text strong { font-size: 1.02rem; }
+.logo__text small { color: var(--muted); font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; }
+.nav-toggle {
+  display: inline-grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: var(--ink);
+}
+.site-nav {
+  display: none;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+  box-shadow: 0 18px 30px rgba(16, 24, 40, .08);
+  padding: 14px 20px 20px;
+  flex-direction: column;
+  gap: 4px;
+}
+.site-nav.is-open { display: flex; }
+.site-nav a { padding: 11px 6px; font-size: .95rem; font-weight: 500; border-bottom: 1px solid var(--soft); }
+.site-nav a:hover { color: var(--primary-text); }
+.site-nav .btn { border-bottom: 0; margin-top: 12px; }
+@media (min-width: 900px) {
+  .nav-toggle { display: none; }
+  .site-nav {
+    display: flex;
+    position: static;
+    flex-direction: row;
+    align-items: center;
+    gap: 24px;
+    padding: 0;
+    border: 0;
+    box-shadow: none;
+    background: transparent;
+  }
+  .site-nav a { padding: 0; border: 0; font-size: .93rem; }
+  .site-nav .btn { margin-top: 0; }
+}
+</style>
+<header class="site-header" id="top">
+  <div class="container site-header__inner">
+    <a class="logo" href="#top">
+      <span class="logo__mark">{{ template_config.emoji }}</span>
+      <span class="logo__text">
+        <strong>{{ business.name }}</strong>
+        <small>{{ template_config.name }} · {{ business.city }}</small>
+      </span>
+    </a>
+
+    <button class="nav-toggle" id="navToggle" aria-label="Ouvrir le menu" aria-controls="mainNav">☰</button>
+
+    <nav class="site-nav" id="mainNav">
+      <a href="#about">À propos</a>
+      <a href="#services">{{ menu_labels.get(template_type, 'Prestations') }}</a>
+      <a href="#gallery">Galerie</a>
+      {% if is_ecommerce %}<a href="#commander">Commander</a>{% endif %}
+      <a href="#contact">Contact</a>
+      <a class="btn btn--primary btn--sm" href="tel:{{ business.phone_tel }}">📞 Appeler {{ business.phone }}</a>
+    </nav>
+  </div>
+</header>

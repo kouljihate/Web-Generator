@@ -1,0 +1,91 @@
+{# partials/_footer.html — pied de page sombre : À propos, Contact, Horaires #}
+<style>
+.site-footer { background: var(--dark); color: #cfd6dd; padding: 64px 0 0; margin-top: 0; }
+.site-footer h4 { color: #fff; font-size: .82rem; letter-spacing: .16em; text-transform: uppercase; margin-bottom: 18px; }
+.site-footer p, .site-footer li, .site-footer a { color: #b6c0ca; font-size: .92rem; }
+/* Le gris « muted » du thème peut être très sombre (thème clair) : sur le pied
+   de page toujours sombre, on garde un gris clair fixe, lisible partout. */
+.site-footer .muted { color: #93a0ad; }
+.site-footer__grid { display: grid; gap: 34px; grid-template-columns: 1fr; }
+.site-footer__lead { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+.site-footer__lead .logo__mark { width: 40px; height: 40px; flex: 0 0 40px; font-size: 1.2rem; }
+.site-footer__lead strong { color: #fff; font-size: 1.1rem; }
+.site-footer ul { list-style: none; display: grid; gap: 10px; }
+.site-footer a:hover { color: #fff; }
+.footer-hours { display: grid; gap: 6px; }
+.footer-hours div { display: flex; justify-content: space-between; gap: 14px; border-bottom: 1px dashed rgba(255, 255, 255, .12); padding-bottom: 5px; }
+.footer-social { display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
+.footer-social a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border: 1px solid rgba(255, 255, 255, .18);
+  border-radius: 999px;
+  font-size: .85rem;
+}
+.footer-social a:hover { background: rgba(255, 255, 255, .08); }
+.site-footer__bottom {
+  margin-top: 44px;
+  border-top: 1px solid rgba(255, 255, 255, .1);
+  padding: 20px 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: space-between;
+  font-size: .84rem;
+  color: #8d99a5;
+}
+.site-footer__bottom strong { color: #fff; font-weight: 600; }
+@media (min-width: 760px) {
+  .site-footer__grid { grid-template-columns: 1.4fr 1fr 1fr; gap: 44px; }
+}
+</style>
+<footer class="site-footer">
+  <div class="container">
+    <div class="site-footer__grid">
+      <div>
+        <div class="site-footer__lead">
+          <span class="logo__mark">{{ template_config.emoji }}</span>
+          <strong>{{ business.name }}</strong>
+        </div>
+        <p>{{ business.description }}</p>
+        {% if business.rating %}
+        <p class="small" style="margin-top:10px">
+          <span class="rating">★ {{ '%.1f'|format(business.rating) }}/5</span>
+          {% if business.reviews %}<span class="muted">— {{ business.reviews }} avis clients</span>{% endif %}
+        </p>
+        {% endif %}
+        <div class="footer-social">
+          <a href="{{ business.wa_link }}" target="_blank" rel="noopener">💬 WhatsApp</a>
+          <a href="{{ business.facebook }}" target="_blank" rel="noopener">f Facebook</a>
+          <a href="{{ business.instagram }}" target="_blank" rel="noopener">◎ Instagram</a>
+        </div>
+      </div>
+
+      <div>
+        <h4>Contact</h4>
+        <ul>
+          <li>📍 {{ business.address }}</li>
+          <li>📞 <a href="tel:{{ business.phone_tel }}">{{ business.phone }}</a></li>
+          <li>💬 <a href="{{ business.wa_link }}" target="_blank" rel="noopener">Commander sur WhatsApp</a></li>
+          <li>🧭 <a href="{{ business.maps_link }}" target="_blank" rel="noopener">Itinéraire Google Maps</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h4>Horaires</h4>
+        <div class="footer-hours">
+          {% for day, slot in business.hours.items() %}
+          <div><span>{{ day }}</span><span>{{ slot }}</span></div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <div class="site-footer__bottom">
+      <span>© {{ business.year }} {{ business.name }} — Tous droits réservés.</span>
+      <span>Créé par <strong>SiteBuilder Pro</strong> · Jinja2 Edition</span>
+    </div>
+  </div>
+</footer>

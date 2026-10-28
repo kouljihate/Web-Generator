@@ -1,0 +1,35 @@
+# --- Python ---------------------------------------------------------------- #
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# --- Environnements virtuels ----------------------------------------------- #
+venv/
+.venv/
+env/
+ENV/
+
+# --- Sorties générées ------------------------------------------------------ #
+output/
+*.zip
+
+# --- Secrets et configuration locale --------------------------------------- #
+.env
+.env.*
+!.env.example
+.streamlit/secrets.toml
+
+# --- Outils de l'agent / éditeurs ------------------------------------------ #
+.freebuff/
+.claude/
+.agents/
+.vscode/
+.idea/
+
+# --- Système --------------------------------------------------------------- #
+.DS_Store
+Thumbs.db
+desktop.ini

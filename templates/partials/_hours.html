@@ -1,0 +1,50 @@
+{# partials/_hours.html — tableau des horaires d'ouverture #}
+<style>
+.hours-wrap { display: grid; gap: 26px; align-items: start; }
+.hours-table { width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-sm); }
+.hours-table caption { caption-side: top; text-align: left; font-weight: 600; padding: 16px 20px; background: var(--soft); color: var(--ink); }
+.hours-table td { padding: 13px 20px; border-bottom: 1px solid var(--line); font-size: .94rem; }
+.hours-table tr:last-child td { border-bottom: 0; }
+.hours-table tr:nth-child(even) td { background: var(--surface-alt); }
+.hours-table td:last-child { text-align: right; font-weight: 600; color: var(--ink); }
+.hours-table td.is-closed { color: var(--muted); font-weight: 500; }
+.hours-note { background: var(--primary-light); border-radius: var(--radius); padding: 24px; border: 1px solid var(--primary); border-color: color-mix(in srgb, var(--primary) 25%, transparent); }
+.hours-note h3 { color: var(--primary-text); }
+.hours-note p { color: var(--ink); margin-top: 8px; font-size: .93rem; }
+.hours-note .btn { margin-top: 18px; }
+@media (min-width: 860px) { .hours-wrap { grid-template-columns: 1.25fr 1fr; } }
+</style>
+<section class="section" id="hours">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">Horaires</span>
+      <h2>Quand nous rendre visite</h2>
+      <p>{{ business.name }} vous accueille {{ business.address }}.</p>
+    </div>
+
+    <div class="hours-wrap">
+      <table class="hours-table reveal">
+        <caption>Horaires d'ouverture hebdomadaires</caption>
+        <tbody>
+          {% for day, slot in business.hours.items() %}
+          <tr>
+            <td>{{ day }}</td>
+            <td {% if slot|lower in ['fermé', 'ferme', 'closed'] %}class="is-closed"{% endif %}>
+              {{ slot }}{% if slot|lower in ['fermé', 'ferme', 'closed'] %} 🚪{% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <div class="hours-note reveal">
+        <h3>Un doute sur nos horaires ?</h3>
+        <p>
+          Les horaires peuvent changer les jours de fête. Envoyez-nous un message
+          WhatsApp pour confirmer votre passage ou réserver votre place.
+        </p>
+        <a class="btn btn--wa" href="{{ business.wa_link }}" target="_blank" rel="noopener">💬 Vérifier sur WhatsApp</a>
+      </div>
+    </div>
+  </div>
+</section>

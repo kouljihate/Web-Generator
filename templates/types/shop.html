@@ -1,0 +1,253 @@
+{# types/shop.html — gabarit boutique : hero minimal, grille 4 colonnes, filtres JS #}
+{% extends "base.html" %}
+{% set color = "#2E86C1" %}
+{% set font = "Inter" %}
+{% set template_type = "shop" %}
+{% set categories = products|map(attribute='category')|select|unique|list %}
+
+{% block head_extra %}
+<style>
+.hero {
+  position: relative;
+  min-height: 78vh;
+  display: flex;
+  align-items: flex-end;
+  color: #fff;
+  overflow: hidden;
+}
+.hero__bg {
+  position: absolute;
+  inset: 0;
+  background: url('{{ template_config.hero_image }}') center/cover no-repeat;
+}
+.hero__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(9, 14, 20, .85) 0%, rgba(9, 14, 20, .62) 55%, rgba(9, 14, 20, .35) 100%);
+}
+.hero__inner { position: relative; z-index: 2; width: 100%; padding: 80px 0 56px; }
+.hero__inner > div { max-width: 560px; }
+.hero__kicker {
+  font-size: .78rem;
+  letter-spacing: .3em;
+  text-transform: uppercase;
+  color: #cfe4f5;
+  margin-bottom: 14px;
+  display: block;
+}
+.hero h1 { font-weight: 800; letter-spacing: -.03em; }
+.hero p { color: rgba(255, 255, 255, .88); font-size: 1.05rem; margin-top: 16px; }
+.hero__actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 28px; }
+.hero__meta { display: flex; gap: 22px; flex-wrap: wrap; margin-top: 34px; font-size: .85rem; color: rgba(255, 255, 255, .9); }
+
+/* --- Filtres ----------------------------------------------------------- */
+.filters { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-bottom: 36px; }
+.filter {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  padding: 9px 20px;
+  border-radius: 999px;
+  font-family: inherit;
+  font-size: .88rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all .2s ease;
+}
+.filter:hover { border-color: var(--primary); color: var(--primary-text); }
+.filter.is-active { background: var(--primary); border-color: var(--primary); color: var(--on-primary); }
+
+/* --- Produits ---------------------------------------------------------- */
+.shop-grid { display: grid; gap: 22px; grid-template-columns: repeat(2, 1fr); }
+.product { display: flex; flex-direction: column; }
+.product__media { position: relative; aspect-ratio: 3 / 4; overflow: hidden; background: var(--soft); border-radius: var(--radius); }
+.product__media img { width: 100%; height: 100%; object-fit: cover; transition: transform .6s ease; }
+.product:hover .product__media img { transform: scale(1.06); }
+.product__tag {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: var(--primary);
+  color: var(--on-primary);
+  font-size: .68rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  padding: 5px 10px;
+  border-radius: 999px;
+}
+.product__tag--promo { background: #C0392B; color: #fff; }
+.product__body { padding: 14px 4px 0; display: flex; flex-direction: column; flex: 1; }
+.product__cat { font-size: .74rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.product__name { font-size: .98rem; font-weight: 600; margin: 4px 0 8px; }
+.product__prices { display: flex; align-items: baseline; gap: 10px; margin-top: auto; }
+.product__price { font-weight: 700; color: var(--primary-text); font-size: 1.06rem; }
+@media (min-width: 760px) { .shop-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 1000px) { .shop-grid { grid-template-columns: repeat(4, 1fr); } }
+
+/* --- Bandeau services boutique ---------------------------------------- */
+.perks { display: grid; gap: 18px; margin-top: 46px; padding-top: 40px; border-top: 1px solid var(--line); }
+.perk { display: flex; gap: 14px; align-items: flex-start; }
+.perk__icon {
+  width: 46px;
+  height: 46px;
+  flex: 0 0 46px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  background: var(--primary-light);
+  font-size: 1.3rem;
+}
+.perk h3 { font-size: .98rem; }
+.perk p { font-size: .87rem; margin-top: 3px; }
+@media (min-width: 800px) { .perks { grid-template-columns: repeat(3, 1fr); } }
+
+.about-shop { display: grid; gap: 30px; align-items: center; }
+.about-shop__imgs { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.about-shop__imgs img { border-radius: var(--radius); aspect-ratio: 1 / 1; object-fit: cover; box-shadow: var(--shadow-sm); }
+@media (min-width: 900px) { .about-shop { grid-template-columns: 1.05fr 1fr; gap: 52px; } }
+</style>
+{% endblock %}
+
+{% block hero %}
+<section class="hero">
+  <div class="hero__bg"></div>
+  <div class="hero__overlay"></div>
+  <div class="hero__inner">
+    <div class="container">
+      <span class="hero__kicker">Nouvelle Collection</span>
+      <h1>{{ business.name }}</h1>
+      <p>{{ business.description }}</p>
+      <div class="hero__actions">
+        <a class="btn btn--primary" href="#services">Découvrir les articles</a>
+        <a class="btn btn--outline" href="{{ business.wa_link }}" target="_blank" rel="noopener">💬 Demander un article</a>
+      </div>
+      <div class="hero__meta">
+        <span>📍 {{ business.address }}</span>
+        <span>🚚 Livraison en ville</span>
+        <span>🔄 Échange sous 7 jours</span>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block services %}
+<section class="section" id="services">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">Collection</span>
+      <h2>Nos pièces du moment</h2>
+      <p>Sélection {{ business.year }} disponible en boutique — cliquez pour ajouter au panier.</p>
+    </div>
+
+    <div class="filters reveal" id="shopFilters">
+      <button class="filter is-active" type="button" data-filter="all">Tout voir</button>
+      {% for category in categories %}
+      <button class="filter" type="button" data-filter="{{ category }}">{{ category }}</button>
+      {% endfor %}
+    </div>
+
+    <div class="shop-grid" id="shopGrid">
+      {% for product in products %}
+      <article class="product reveal" data-category="{{ product.category }}">
+        <div class="product__media">
+          {% if product.tag %}
+          <span class="product__tag {% if product.tag|lower == 'promo' %}product__tag--promo{% endif %}">{{ product.tag }}</span>
+          {% endif %}
+          <img src="{{ product.image }}" alt="{{ product.name }}" loading="lazy">
+        </div>
+        <div class="product__body">
+          <span class="product__cat">{{ product.category }}</span>
+          <h3 class="product__name">{{ product.name }}</h3>
+          <p class="small" style="margin-bottom:6px">{{ product.desc }}</p>
+          <div class="product__prices">
+            <span class="product__price">{{ product.price }} {{ currency }}</span>
+            {% if product.old_price %}<span class="strike">{{ product.old_price }} {{ currency }}</span>{% endif %}
+          </div>
+          {% if is_ecommerce %}
+          <button class="btn btn--primary add-to-cart" type="button"
+                  data-name="{{ product.name }}" data-price="{{ product.price }}" data-image="{{ product.image }}">
+            🛒 Ajouter au panier
+          </button>
+          {% else %}
+          <a class="btn btn--ghost" style="margin-top:14px" href="{{ business.wa_link }}" target="_blank" rel="noopener">💬 Vérifier la disponibilité</a>
+          {% endif %}
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+
+    <div class="perks">
+      {% for feature in features %}
+      <div class="perk reveal">
+        <span class="perk__icon">{{ feature.icon }}</span>
+        <div>
+          <h3>{{ feature.title }}</h3>
+          <p>{{ feature.text }}</p>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block about %}
+<section class="section section--soft" id="about">
+  <div class="container">
+    <div class="about-shop">
+      <div class="reveal">
+        <span class="eyebrow">La boutique</span>
+        <h2>Essayez avant d'acheter</h2>
+        <p style="margin-top:14px">
+          Toutes nos pièces sont disponibles en cabine d'essayage à
+          {{ business.address }}. Vous hésitez entre deux tailles ? Écrivez-nous,
+          nous vous conseillons en photo.
+        </p>
+        <div class="grid grid--2" style="margin-top:26px">
+          <div>
+            <h3 style="font-size:1rem">Horaires</h3>
+            <p class="small" style="margin-top:6px">
+              Du lundi au samedi<br>{{ business.hours.get('Lundi', '09:00 - 20:00') }}
+            </p>
+          </div>
+          <div>
+            <h3 style="font-size:1rem">Nous appeler</h3>
+            <p class="small" style="margin-top:6px">
+              <a href="tel:{{ business.phone_tel }}" style="color:var(--primary-text);font-weight:600">{{ business.phone }}</a><br>
+              Réponse en moins d'une heure
+            </p>
+          </div>
+        </div>
+        <a class="btn btn--primary" style="margin-top:26px" href="{{ business.wa_link }}" target="_blank" rel="noopener">💬 Discuter sur WhatsApp</a>
+      </div>
+      <div class="about-shop__imgs reveal">
+        <img src="{{ template_config.gallery[0] }}" alt="Boutique {{ business.name }}" loading="lazy">
+        <img src="{{ template_config.gallery[1] }}" alt="Collection {{ business.name }}" loading="lazy">
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+/* Filtres de catégories (Tout / Homme / Femme / Accessoires). */
+(function () {
+  var filters = document.querySelectorAll('#shopFilters .filter');
+  var items = document.querySelectorAll('#shopGrid .product');
+  filters.forEach(function (button) {
+    button.addEventListener('click', function () {
+      filters.forEach(function (other) { other.classList.remove('is-active'); });
+      button.classList.add('is-active');
+      var target = button.getAttribute('data-filter');
+      items.forEach(function (item) {
+        var match = target === 'all' || item.getAttribute('data-category') === target;
+        item.style.display = match ? '' : 'none';
+      });
+    });
+  });
+})();
+</script>
+{% endblock %}

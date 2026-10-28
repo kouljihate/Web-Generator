@@ -1,0 +1,209 @@
+{# types/cafe.html — gabarit café : hero cosy en deux colonnes, carte rustique #}
+{% extends "base.html" %}
+{% set color = "#6F4E37" %}
+{% set font = "Playfair Display" %}
+{% set template_type = "cafe" %}
+
+{% block head_extra %}
+<style>
+.hero { background: var(--soft); padding: 56px 0 72px; position: relative; overflow: hidden; }
+.hero__grid { display: grid; gap: 34px; align-items: center; }
+.hero__text h1 { font-size: clamp(2.1rem, 5vw, 3.2rem); }
+.hero__text h1 em { font-style: italic; color: var(--primary-text); }
+.hero__text p { font-size: 1.05rem; margin-top: 18px; max-width: 520px; }
+.hero__actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 28px; }
+.hero__tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  color: var(--primary-text);
+  padding: 7px 16px;
+  border-radius: 999px;
+  font-size: .8rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  margin-bottom: 18px;
+}
+.hero__frame { position: relative; }
+.hero__frame img {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  border-radius: 240px 240px 26px 26px;
+  box-shadow: 0 24px 60px rgba(70, 46, 30, .22);
+}
+.hero__stamp {
+  position: absolute;
+  right: -6px;
+  bottom: 24px;
+  width: 118px;
+  height: 118px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: var(--on-primary);
+  display: grid;
+  place-items: center;
+  text-align: center;
+  font-size: .78rem;
+  line-height: 1.3;
+  transform: rotate(-8deg);
+  box-shadow: 0 14px 30px rgba(111, 78, 55, .35);
+}
+@media (min-width: 900px) {
+  .hero { padding: 80px 0 96px; }
+  .hero__grid { grid-template-columns: 1.05fr .95fr; gap: 56px; }
+  .hero__stamp { right: 18px; bottom: 36px; }
+}
+
+/* --- Carte de café (lignes pointillées) -------------------------------- */
+.cafe-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 34px 30px;
+  box-shadow: var(--shadow-sm);
+}
+.cafe-menu { display: grid; gap: 30px; }
+.cafe-col { display: grid; gap: 18px; }
+.cafe-row { display: flex; align-items: baseline; gap: 12px; }
+.cafe-row__name { font-weight: 600; font-size: 1rem; white-space: nowrap; }
+.cafe-row__dots { flex: 1; border-bottom: 2px dotted var(--line); transform: translateY(-4px); }
+.cafe-row__price { font-weight: 700; color: var(--primary-text); font-size: 1.02rem; white-space: nowrap; }
+.cafe-row__desc { font-size: .86rem; color: var(--muted); margin-top: 2px; }
+.cafe-row__cart { margin-top: 8px; }
+@media (min-width: 800px) { .cafe-menu { grid-template-columns: 1fr 1fr; gap: 40px; } }
+.cafe-note {
+  margin-top: 30px;
+  padding: 20px 22px;
+  background: var(--soft);
+  border-left: 4px solid var(--primary);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  font-size: .93rem;
+  color: var(--ink);
+}
+
+/* --- Notre histoire ---------------------------------------------------- */
+.story { display: grid; gap: 32px; align-items: center; }
+.story__img { border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); aspect-ratio: 3 / 4; }
+.story__img img { width: 100%; height: 100%; object-fit: cover; }
+.story blockquote {
+  font-style: italic;
+  font-size: 1.12rem;
+  color: var(--ink);
+  border-left: 3px solid var(--primary);
+  padding-left: 20px;
+  margin: 22px 0;
+}
+.story__sign { font-weight: 600; color: var(--primary-text); }
+@media (min-width: 880px) { .story { grid-template-columns: .85fr 1.15fr; gap: 54px; } }
+</style>
+{% endblock %}
+
+{% block hero %}
+<section class="hero">
+  <div class="container">
+    <div class="hero__grid">
+      <div class="hero__text reveal">
+        <span class="hero__tag">☕ Torréfaction artisanale · {{ business.city }}</span>
+        <h1>Un café, un livre,<br><em>le temps s'arrête.</em></h1>
+        <p>{{ business.description }}</p>
+        <div class="hero__actions">
+          <a class="btn btn--primary" href="#services">Découvrir la carte</a>
+          <a class="btn btn--wa" href="{{ business.wa_link }}" target="_blank" rel="noopener">💬 Réserver une table</a>
+        </div>
+        <p class="small" style="margin-top:22px">
+          Ouvert aujourd'hui · {{ business.hours.get('Lundi', '09:00 - 20:00') }} ·
+          <a href="tel:{{ business.phone_tel }}" style="color:var(--primary-text);font-weight:600">{{ business.phone }}</a>
+        </p>
+      </div>
+      <div class="hero__frame reveal">
+        <img src="{{ template_config.hero_image }}" alt="Ambiance de {{ business.name }}">
+        <span class="hero__stamp">Grains frais<br>torréfiés<br>chaque semaine</span>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block about %}
+<section class="section" id="about">
+  <div class="container">
+    <div class="story">
+      <div class="story__img reveal">
+        <img src="{{ template_config.gallery[2] }}" alt="Notre histoire — {{ business.name }}" loading="lazy">
+      </div>
+      <div class="reveal">
+        <span class="eyebrow">Notre histoire</span>
+        <h2>Né d'une passion pour le bon café</h2>
+        <p style="margin-top:16px">
+          {{ business.address }} — c'est ici que tout a commencé. Nous voulions un
+          endroit simple et chaleureux où le café est bon, le service souriant et
+          les prix honnêtes.
+        </p>
+        <blockquote>
+          « Un bon café ne se boit pas en cinq minutes : il se vit. »
+        </blockquote>
+        <p>
+          Nos grains sont sélectionnés chez des importateurs de spécialité, torréfiés
+          chaque semaine, et nos pâtisseries sont préparées sur place le matin même.
+        </p>
+        <p class="story__sign" style="margin-top:18px">L'équipe {{ business.name }}</p>
+
+        <div class="grid grid--3" style="margin-top:30px">
+          {% for feature in features %}
+          <div>
+            <div style="font-size:1.6rem">{{ feature.icon }}</div>
+            <h3 style="font-size:1rem;margin-top:8px">{{ feature.title }}</h3>
+            <p class="small">{{ feature.text }}</p>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block services %}
+<section class="section section--soft" id="services">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">Notre carte</span>
+      <h2>Boissons &amp; douceurs</h2>
+      <p>Cafés de spécialité, thés à la marocaine et pâtisseries maison.</p>
+    </div>
+
+    <div class="cafe-card reveal">
+      <div class="cafe-menu">
+        {% for column in products|batch(3) %}
+        <div class="cafe-col">
+          {% for product in column %}
+          <div>
+            <div class="cafe-row">
+              <span class="cafe-row__name">{{ product.name }}</span>
+              <span class="cafe-row__dots"></span>
+              <span class="cafe-row__price">{{ product.price }} {{ currency }}</span>
+            </div>
+            <div class="cafe-row__desc">{{ product.desc }}</div>
+            {% if is_ecommerce %}
+            <button class="btn btn--ghost btn--sm add-to-cart cafe-row__cart" type="button"
+                    data-name="{{ product.name }}" data-price="{{ product.price }}" data-image="{{ product.image }}">
+              🛒 Ajouter
+            </button>
+            {% endif %}
+          </div>
+          {% endfor %}
+        </div>
+        {% endfor %}
+      </div>
+
+      <div class="cafe-note">
+        <strong>Astuce :</strong> demandez notre formule « café + pâtisserie » du jour,
+        servie de 15h à 18h. Terrasse ombragée et Wi-Fi gratuit à disposition.
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

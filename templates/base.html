@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ business.name }} — {{ business.city }}{% if is_ecommerce %} · Commande en ligne{% endif %}</title>
+<meta name="description" content="{{ business.description }}">
+<meta name="generator" content="SiteBuilder Pro {{ generator_version or '1.1.0' }}">
+<meta name="theme-color" content="{{ theme.primary if theme else color }}">
+<meta property="og:type" content="business.business">
+<meta property="og:title" content="{{ business.name }} — {{ business.city }}">
+<meta property="og:description" content="{{ business.description }}">
+{% if business.rating %}
+<meta property="og:site_name" content="{{ business.name }} ({{ business.rating }}/5)">
+{% endif %}
+{# --- Thème Bootswatch tiré au hasard (voir themes.py) ------------------ #}
+{% set site_font = theme.font if theme and theme.font else font %}
+{% set needs_type_font = (not theme) or (not theme.font) %}
+{% if theme %}
+<!-- Thème Bootswatch « {{ theme.label }} » v{{ theme.version }} — embarqué depuis assets/themes/{{ theme.slug }}/bootstrap.min.css -->
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<style id="bootswatch-{{ theme.slug }}" data-theme="{{ theme.slug }}" data-theme-label="{{ theme.label }}" data-theme-version="{{ theme.version }}" data-theme-dark="{{ 'true' if theme.is_dark else 'false' }}">
+{{ theme_css | safe }}
+</style>
+{% endif %}
+{% if needs_type_font %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family={{ font|replace(' ', '+') }}:wght@400;600;700&display=swap" rel="stylesheet">
+{% endif %}
+<style>
+/* ==========================================================================
+   SiteBuilder Pro — design system commun (mobile-first)
+   Gabarit : {{ template_type }} · Thème : {{ theme.label if theme else 'aucun' }}
+   Couleur principale : {{ theme.primary if theme else color }} · Police : {{ site_font }}
+   ========================================================================== */
+:root {
+  /* Jetons issus du thème Bootswatch */
+  --primary: {{ theme.primary if theme else color }};
+  --primary-dark: {{ theme.primary_dark if theme else color|darken(24) }};
+  /* Accent destiné au TEXTE (prix, liens, surtitres) : sur un thème sombre, la
+     couleur principale d'un bouton est trop sourde pour être lue sur le fond. */
+  --primary-text: {{ theme.primary_text if theme else color }};
+  --primary-soft-text: {{ theme.primary_soft_text if theme else color|darken(12) }};
+  --primary-light: {{ theme.primary_light if theme else color|lighten(88) }};
+  --primary-tint: {{ theme.primary_tint if theme else color|lighten(52) }};
+  --on-primary: {{ theme.on_primary if theme else '#ffffff' }};
+  --surface: {{ theme.surface if theme else '#ffffff' }};
+  --surface-alt: {{ theme.surface_alt if theme else '#f7f8fa' }};
+  --surface-glass: {{ theme.surface_glass if theme else 'rgba(255, 255, 255, 0.94)' }};
+  --soft: {{ theme.soft if theme else '#f7f8fa' }};
+  --ink: {{ theme.ink if theme else '#232a31' }};
+  --muted: {{ theme.muted if theme else '#6b7280' }};
+  --line: {{ theme.line if theme else '#e6e8eb' }};
+  --radius: {{ theme.radius_px if theme else 18 }}px;
+  --radius-sm: {{ theme.radius_sm_px if theme else 10 }}px;
+  /* Jetons propres au gabarit */
+  --dark: {{ '#0b0e12' if theme and theme.is_dark else '#14181d' }};
+  --ok: #1e9e5a;
+  --ok-text: {{ theme.ok_text if theme else '#156B3A' }};
+  /* Vert WhatsApp assombri : le vert de marque (#25D366) plafonne à 1,98:1
+     avec un libellé blanc, celui-ci reste dans la même famille à 5,1:1. */
+  --wa: #0e7c6b;
+  --wa-dark: #0a6557;
+  --shadow-sm: 0 2px 8px rgba(16, 24, 40, .08);
+  --shadow: 0 4px 14px rgba(16, 24, 40, .06), 0 14px 40px rgba(16, 24, 40, .09);
+  --max: 1160px;
+  --font: '{{ site_font }}', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+/* Neutralise le « Reboot » de Bootstrap apporté par le thème : nos styles
+   reprennent la main sur les marges, les puces et le soulignement des liens. */
+body :is(h1, h2, h3, h4, h5, h6, p, ul, ol, li, figure, blockquote, dl, dd) { margin: 0; padding: 0; }
+body :is(ul, ol) { list-style: none; }
+/* Bootstrap peint les titres avec --bs-heading-color (un gris propre au thème,
+   illisible sur le héros) : les titres héritent de la couleur de leur section. */
+body :is(h1, h2, h3, h4, h5, h6) { color: inherit; }
+body a { text-decoration: none; }
+body a:hover { color: var(--primary-text); }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font);
+  color: var(--ink);
+  background: var(--surface);
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+img { max-width: 100%; display: block; }
+a { color: inherit; text-decoration: none; }
+h1, h2, h3, h4 { line-height: 1.2; font-weight: 700; letter-spacing: -.01em; }
+h1 { font-size: clamp(2rem, 5.5vw, 3.6rem); }
+h2 { font-size: clamp(1.6rem, 4vw, 2.4rem); }
+h3 { font-size: 1.15rem; }
+p { color: var(--muted); }
+
+.container { width: 100%; max-width: var(--max); margin: 0 auto; padding: 0 20px; }
+.section { padding: 72px 0; }
+.section--soft { background: var(--soft); }
+.section--tight { padding: 48px 0; }
+.section-head { max-width: 680px; margin: 0 auto 44px; text-align: center; }
+.section-head p { margin-top: 12px; }
+.eyebrow {
+  display: inline-block;
+  font-size: .78rem;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--primary-text);
+  margin-bottom: 10px;
+}
+
+/* --- Boutons ------------------------------------------------------------ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 13px 26px;
+  border: 0;
+  border-radius: 999px;
+  font-family: inherit;
+  font-size: .95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform .18s ease, box-shadow .18s ease, background .18s ease, color .18s ease;
+  text-align: center;
+}
+.btn:hover { transform: translateY(-2px); }
+.btn--primary { background: var(--primary); color: var(--on-primary); box-shadow: 0 8px 20px rgba(0, 0, 0, .16); }
+.btn--primary:hover { background: var(--primary-dark); color: var(--on-primary); }
+.btn--outline { background: transparent; color: #fff; border: 2px solid rgba(255, 255, 255, .7); }
+.btn--outline:hover { background: var(--surface); color: var(--primary-text); }
+.btn--ghost { background: var(--primary-light); color: var(--primary-soft-text); }
+.btn--dark { background: var(--dark); color: #fff; }
+.btn--wa { background: var(--wa); color: #fff; }
+.btn--wa:hover { background: var(--wa-dark); }
+.btn--block { width: 100%; }
+.btn--sm { padding: 9px 18px; font-size: .85rem; }
+
+/* --- Cartes & grilles --------------------------------------------------- */
+.grid { display: grid; gap: 22px; }
+.grid--2 { grid-template-columns: 1fr; }
+.grid--3 { grid-template-columns: 1fr; }
+.grid--4 { grid-template-columns: 1fr; }
+.card {
+  display: block; /* neutralise le flex de .card de Bootstrap */
+  color: var(--ink); /* Bootstrap peint .card avec --bs-body-color */
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.card:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
+.card__media { position: relative; aspect-ratio: 4 / 3; overflow: hidden; background: var(--soft); }
+.card__media img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s ease; }
+.card:hover .card__media img { transform: scale(1.06); }
+.card__body { padding: 18px 20px 22px; }
+.card__title { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.price { color: var(--primary-text); font-weight: 700; white-space: nowrap; }
+.badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 2;
+  background: var(--primary);
+  color: var(--on-primary);
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  padding: 5px 11px;
+  border-radius: 999px;
+}
+.badge--dark { background: var(--dark); color: #fff; }
+.rating { color: #f5a623; font-weight: 600; letter-spacing: 1px; }
+.muted { color: var(--muted); }
+.small { font-size: .88rem; }
+.strike { text-decoration: line-through; color: var(--muted); font-weight: 400; }
+
+/* --- Animations d'apparition -------------------------------------------- */
+.reveal { opacity: 0; transform: translateY(18px); transition: opacity .6s ease, transform .6s ease; }
+.reveal.is-visible { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1; transform: none; transition: none; }
+  html { scroll-behavior: auto; }
+}
+
+/* --- Bouton WhatsApp flottant ------------------------------------------ */
+.wa-float {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 60;
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: var(--wa);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-size: 1.6rem;
+  box-shadow: 0 10px 26px rgba(37, 211, 102, .45);
+  transition: transform .2s ease;
+}
+.wa-float:hover { transform: scale(1.08); color: #fff; }
+
+@media (min-width: 700px) {
+  .grid--2 { grid-template-columns: repeat(2, 1fr); }
+  .grid--3 { grid-template-columns: repeat(3, 1fr); }
+  .grid--4 { grid-template-columns: repeat(4, 1fr); }
+}
+@media (min-width: 960px) {
+  .section { padding: 96px 0; }
+}
+</style>
+{% block head_extra %}{% endblock %}
+</head>
+<body class="tpl-{{ template_type }}{% if theme %} theme-{{ theme.slug }}{% endif %}">
+
+{% block header %}{% include 'partials/_header.html' %}{% endblock %}
+
+<main>
+  {% block hero %}{% endblock %}
+  {% block about %}{% endblock %}
+  {% block services %}{% endblock %}
+  {% block gallery %}{% include 'partials/_gallery.html' %}{% endblock %}
+  {% block hours %}{% include 'partials/_hours.html' %}{% endblock %}
+  {% block contact %}{% include 'partials/_map.html' %}{% endblock %}
+</main>
+
+{% block ecommerce %}
+{% if is_ecommerce %}{% include 'partials/_cart.html' %}{% endif %}
+{% endblock %}
+
+{% block footer %}{% include 'partials/_footer.html' %}{% endblock %}
+
+<a class="wa-float" href="{{ business.wa_link }}" target="_blank" rel="noopener"
+   aria-label="Discuter sur WhatsApp" title="WhatsApp">💬</a>
+
+<script>
+/* Menu mobile + apparition des sections au défilement. */
+(function () {
+  var toggle = document.getElementById('navToggle');
+  var nav = document.getElementById('mainNav');
+  if (toggle && nav) {
+    toggle.addEventListener('click', function () { nav.classList.toggle('is-open'); });
+    nav.addEventListener('click', function (event) {
+      if (event.target.tagName === 'A') { nav.classList.remove('is-open'); }
+    });
+  }
+  var items = document.querySelectorAll('.reveal');
+  if (!('IntersectionObserver' in window)) {
+    items.forEach(function (el) { el.classList.add('is-visible'); });
+    return;
+  }
+  var observer = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('is-visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: .12 });
+  items.forEach(function (el) { observer.observe(el); });
+})();
+</script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

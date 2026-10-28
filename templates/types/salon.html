@@ -1,0 +1,267 @@
+{# types/salon.html — gabarit salon : hero dégradé centré, prestations en liste, équipe #}
+{% extends "base.html" %}
+{% set color = "#9B59B6" %}
+{% set font = "Montserrat" %}
+{% set template_type = "salon" %}
+
+{% block head_extra %}
+<style>
+.hero {
+  position: relative;
+  /* Deux arrêts seulement : le dégradé reste dans la famille de la couleur
+     principale, où le texte `--on-primary` est garanti lisible. */
+  background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 58%, var(--primary) 100%);
+  color: var(--on-primary);
+  text-align: center;
+  padding: 84px 0 96px;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  width: 460px;
+  height: 460px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .13);
+  top: -180px;
+  right: -120px;
+}
+.hero::after {
+  content: '';
+  position: absolute;
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .1);
+  bottom: -160px;
+  left: -100px;
+}
+.hero__inner { position: relative; z-index: 2; max-width: 800px; margin: 0 auto; }
+.hero__kicker {
+  display: inline-block;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  font-size: .74rem;
+  color: inherit;
+  margin-bottom: 20px;
+}
+.hero h1 { letter-spacing: -.02em; }
+.hero h1 span { font-weight: 400; font-style: italic; }
+.hero p { color: inherit; font-size: 1.05rem; margin: 20px auto 0; max-width: 620px; }
+.hero__actions { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-top: 32px; }
+.hero .btn--outline { color: inherit; border-color: currentColor; }
+.hero__pills { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 36px; }
+.hero__pills span {
+  border: 1px solid currentColor;
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-size: .84rem;
+}
+
+/* --- Prestations en liste ---------------------------------------------- */
+.pricelist {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+.pricelist__head, .pricelist__row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 16px;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--line);
+}
+.pricelist__head {
+  background: var(--soft);
+  font-size: .76rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 700;
+}
+.pricelist__row:last-child { border-bottom: 0; }
+.pricelist__row:hover { background: var(--primary-light); }
+.pricelist__name { font-weight: 600; font-size: 1.02rem; }
+.pricelist__desc { font-size: .87rem; color: var(--muted); margin-top: 3px; }
+.pricelist__meta { text-align: right; display: flex; align-items: center; gap: 16px; justify-content: flex-end; }
+.pricelist__price { font-weight: 700; font-size: 1.12rem; color: var(--primary-text); white-space: nowrap; }
+.pricelist__time {
+  font-size: .8rem;
+  color: var(--muted);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 3px 10px;
+  white-space: nowrap;
+}
+@media (max-width: 620px) {
+  .pricelist__head { display: none; }
+  .pricelist__row { grid-template-columns: 1fr; }
+  .pricelist__meta { justify-content: flex-start; text-align: left; }
+}
+
+/* --- Équipe ------------------------------------------------------------ */
+.team { display: grid; gap: 24px; }
+.coach {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.coach:hover { transform: translateY(-5px); box-shadow: var(--shadow); }
+.coach img { aspect-ratio: 1 / 1; object-fit: cover; width: 100%; }
+.coach__body { padding: 20px 18px 24px; }
+.coach h3 { font-size: 1.05rem; }
+.coach__role { color: var(--primary-text); font-size: .84rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; margin: 6px 0 10px; }
+.coach p { font-size: .89rem; }
+@media (min-width: 760px) { .team { grid-template-columns: repeat(3, 1fr); } }
+
+/* --- Bandeau réservation ---------------------------------------------- */
+.booking {
+  background: var(--dark);
+  color: #fff;
+  border-radius: var(--radius);
+  padding: 34px 30px;
+  display: grid;
+  gap: 22px;
+  align-items: center;
+  margin-top: 34px;
+}
+.booking h3 { color: #fff; font-size: 1.3rem; }
+.booking p { color: #b9c2cb; margin-top: 8px; }
+.booking__actions { display: flex; gap: 12px; flex-wrap: wrap; }
+@media (min-width: 860px) { .booking { grid-template-columns: 1.4fr 1fr; padding: 40px; } }
+</style>
+{% endblock %}
+
+{% block hero %}
+<section class="hero">
+  <div class="container">
+    <div class="hero__inner">
+      <span class="hero__kicker">Beauté · Coiffure · Bien-être</span>
+      <h1>{{ business.name }}<br><span>votre style, notre passion</span></h1>
+      <p>{{ business.description }}</p>
+      <div class="hero__actions">
+        <a class="btn btn--primary" style="background:var(--surface);color:var(--primary-text)" href="#services">Voir les tarifs</a>
+        <a class="btn btn--outline" href="{{ business.wa_link }}" target="_blank" rel="noopener">💬 Réserver un créneau</a>
+      </div>
+      <div class="hero__pills">
+        <span>★ {{ '%.1f'|format(business.rating) if business.rating else '4.8' }} / 5</span>
+        <span>Sur rendez-vous ou sans</span>
+        <span>Produits professionnels</span>
+        {% if business.street %}<span>📍 {{ business.street }}</span>{% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block services %}
+<section class="section" id="services">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">Nos prestations</span>
+      <h2>Tarifs clairs, résultat impeccable</h2>
+      <p>Réservez en un message : dites-nous la prestation et l'heure qui vous arrange.</p>
+    </div>
+
+    <div class="pricelist reveal">
+      <div class="pricelist__head">
+        <span>Prestation</span>
+        <span>Durée &amp; tarif</span>
+      </div>
+      {% for product in products %}
+      <div class="pricelist__row">
+        <div>
+          <div class="pricelist__name">{{ product.name }}</div>
+          <div class="pricelist__desc">{{ product.desc }}</div>
+        </div>
+        <div class="pricelist__meta">
+          <span class="pricelist__time">⏱ {{ product.duration }}</span>
+          <span class="pricelist__price">{{ product.price }} {{ currency }}</span>
+          {% if is_ecommerce %}
+          <button class="btn btn--primary btn--sm add-to-cart" type="button"
+                  data-name="{{ product.name }}" data-price="{{ product.price }}" data-image="{{ product.image }}">
+            Réserver
+          </button>
+          {% else %}
+          <a class="btn btn--ghost btn--sm" href="{{ business.wa_link }}" target="_blank" rel="noopener">Réserver</a>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="booking reveal">
+      <div>
+        <h3>Un événement ? Mariage, fiançailles, shooting ?</h3>
+        <p>
+          Nous nous déplaçons et préparons des formules groupe à partir de 3 personnes.
+          Appelez-nous au {{ business.phone }} pour un devis gratuit.
+        </p>
+      </div>
+      <div class="booking__actions">
+        <a class="btn btn--wa" href="{{ business.wa_link }}" target="_blank" rel="noopener">💬 Demander un devis</a>
+        <a class="btn btn--outline" href="tel:{{ business.phone_tel }}">📞 {{ business.phone }}</a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block about %}
+<section class="section section--soft" id="about">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">Notre équipe</span>
+      <h2>Nos coiffeurs &amp; esthéticiennes</h2>
+      <p>Des professionnels formés, à l'écoute de vos envies.</p>
+    </div>
+
+    <div class="team">
+      <article class="coach reveal">
+        <img src="{{ template_config.gallery[2] }}" alt="Coiffeur barbier — {{ business.name }}" loading="lazy">
+        <div class="coach__body">
+          <h3>Youssef</h3>
+          <div class="coach__role">Coiffeur barbier</div>
+          <p>Spécialiste des coupes homme, dégradés et tailles de barbe à l'ancienne.</p>
+        </div>
+      </article>
+      <article class="coach reveal">
+        <img src="{{ template_config.gallery[1] }}" alt="Coiffeuse — {{ business.name }}" loading="lazy">
+        <div class="coach__body">
+          <h3>Salma</h3>
+          <div class="coach__role">Coiffeuse &amp; coloriste</div>
+          <p>Coloration, balayage et soins capillaires. Adepte du naturel et du sur-mesure.</p>
+        </div>
+      </article>
+      <article class="coach reveal">
+        <img src="{{ template_config.gallery[0] }}" alt="Esthéticienne — {{ business.name }}" loading="lazy">
+        <div class="coach__body">
+          <h3>Imane</h3>
+          <div class="coach__role">Esthéticienne</div>
+          <p>Manucure, épilation et soins du visage dans un espace calme et hygiénique.</p>
+        </div>
+      </article>
+    </div>
+
+    <div class="section-head" style="margin:52px auto 0">
+      <h2 style="font-size:1.5rem">Nos engagements</h2>
+    </div>
+    <div class="grid grid--3" style="margin-top:24px">
+      {% for feature in features %}
+      <div class="card reveal" style="padding:26px">
+        <div style="font-size:1.7rem">{{ feature.icon }}</div>
+        <h3 style="margin-top:10px">{{ feature.title }}</h3>
+        <p class="small" style="margin-top:6px">{{ feature.text }}</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

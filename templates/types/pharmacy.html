@@ -1,0 +1,269 @@
+{# types/pharmacy.html — gabarit pharmacie : hero confiance blanc/vert, tableau produits #}
+{% extends "base.html" %}
+{% set color = "#27AE60" %}
+{% set font = "Roboto" %}
+{% set template_type = "pharmacy" %}
+
+{% block head_extra %}
+<style>
+.hero { background: linear-gradient(180deg, var(--soft) 0%, var(--surface) 100%); padding: 56px 0 68px; }
+.hero__grid { display: grid; gap: 36px; align-items: center; }
+.hero__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--primary-light);
+  color: var(--primary-text);
+  border: 1px solid var(--line);
+  padding: 7px 16px;
+  border-radius: 999px;
+  font-size: .82rem;
+  font-weight: 600;
+  margin-bottom: 18px;
+}
+.hero h1 { color: var(--ink); }
+.hero h1 span { color: var(--primary-text); }
+.hero p { font-size: 1.03rem; margin-top: 18px; max-width: 540px; }
+.hero__actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 26px; }
+.emergency {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 28px;
+  padding: 18px 22px;
+  color: #7B1E15; /* pastille d'urgence toujours claire : texte fixe, lisible sur tout thème */
+  background: #FFF5F5;
+  border: 1px solid #FADBD8;
+  border-left: 5px solid #E74C3C;
+  border-radius: var(--radius-sm);
+  max-width: 520px;
+}
+.emergency__icon { font-size: 1.7rem; }
+.emergency strong { display: block; color: #C0392B; font-size: .8rem; letter-spacing: .1em; text-transform: uppercase; }
+.emergency a { color: #C0392B; font-size: 1.35rem; font-weight: 700; }
+.emergency span.small { color: #8A4B45; font-size: .84rem; }
+.hero__img { position: relative; }
+.hero__img img { border-radius: var(--radius); aspect-ratio: 4 / 3; object-fit: cover; box-shadow: var(--shadow); }
+.hero__img::before {
+  content: '';
+  position: absolute;
+  inset: -14px -14px 22px 22px;
+  border: 3px dashed var(--primary);
+  border-radius: var(--radius);
+  z-index: -1;
+}
+@media (min-width: 900px) { .hero { padding: 72px 0 84px; } .hero__grid { grid-template-columns: 1.05fr .95fr; gap: 54px; } }
+
+/* --- Services ---------------------------------------------------------- */
+.services { display: grid; gap: 20px; }
+.service-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 30px 26px;
+  box-shadow: var(--shadow-sm);
+  transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+}
+.service-card:hover { transform: translateY(-4px); box-shadow: var(--shadow); border-color: var(--primary); }
+.service-card__icon {
+  width: 56px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  border-radius: 16px;
+  background: var(--primary-light);
+  font-size: 1.7rem;
+  margin-bottom: 18px;
+}
+.service-card h3 { font-size: 1.12rem; }
+.service-card p { font-size: .93rem; margin-top: 8px; }
+.service-card ul { list-style: none; margin-top: 14px; display: grid; gap: 8px; }
+.service-card li { font-size: .88rem; color: var(--muted); display: flex; gap: 8px; }
+.service-card li::before { content: '✔'; color: var(--primary-text); font-weight: 700; }
+@media (min-width: 800px) { .services { grid-template-columns: repeat(3, 1fr); } }
+
+/* --- Tableau produits -------------------------------------------------- */
+.med-table { width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-sm); }
+.med-table thead { background: var(--soft); }
+.med-table th {
+  text-align: left;
+  padding: 16px 20px;
+  font-size: .78rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--primary-text);
+}
+.med-table td { padding: 16px 20px; border-top: 1px solid var(--line); font-size: .93rem; vertical-align: middle; }
+.med-table tbody tr:hover { background: var(--primary-light); }
+.med-name { display: flex; align-items: center; gap: 14px; }
+.med-name img { width: 52px; height: 52px; border-radius: 12px; object-fit: cover; background: var(--soft); }
+.med-name strong { display: block; font-size: .95rem; }
+.med-name span { font-size: .84rem; color: var(--muted); }
+.stock {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: .82rem;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.stock--in { background: #E7F7EE; color: #156B3A; }
+.stock--order { background: #FEF5E7; color: #8A5A0A; }
+.med-price { font-weight: 700; color: var(--primary-text); white-space: nowrap; }
+.table-scroll { overflow-x: auto; border-radius: var(--radius); }
+@media (max-width: 760px) {
+  .med-table thead { display: none; }
+  .med-table, .med-table tbody, .med-table tr, .med-table td { display: block; width: 100%; }
+  .med-table tr { border-top: 1px solid var(--line); padding: 12px 0; }
+  .med-table td { border: 0; padding: 6px 18px; }
+}
+
+/* --- Réassurance ------------------------------------------------------ */
+.reassure { display: grid; gap: 16px; margin-top: 40px; }
+.reassure div { display: flex; align-items: center; gap: 12px; font-size: .92rem; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 16px 18px; }
+@media (min-width: 800px) { .reassure { grid-template-columns: repeat(3, 1fr); } }
+</style>
+{% endblock %}
+
+{% block hero %}
+<section class="hero">
+  <div class="container">
+    <div class="hero__grid">
+      <div class="reveal">
+        <span class="hero__badge">✚ Pharmacie diplômée · {{ business.city }}</span>
+        <h1>{{ business.name }}<br><span>votre santé, notre priorité</span></h1>
+        <p>{{ business.description }}</p>
+
+        <div class="emergency">
+          <span class="emergency__icon">🚨</span>
+          <div>
+            <strong>Urgence &amp; garde</strong>
+            <a href="tel:{{ business.phone_tel }}">{{ business.phone }}</a>
+            <span class="small" style="display:block">Appel direct — réponse immédiate</span>
+          </div>
+        </div>
+
+        <div class="hero__actions">
+          <a class="btn btn--primary" href="#services">Voir les produits</a>
+          <a class="btn btn--wa" href="{{ business.wa_link }}" target="_blank" rel="noopener">💬 Envoyer mon ordonnance</a>
+        </div>
+      </div>
+      <div class="hero__img reveal">
+        <img src="{{ template_config.hero_image }}" alt="Pharmacie {{ business.name }}" loading="lazy">
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block about %}
+<section class="section section--soft" id="about">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">Nos services</span>
+      <h2>Bien plus qu'un comptoir</h2>
+      <p>Ordonnance, livraison à domicile et conseil personnalisé, tous les jours.</p>
+    </div>
+
+    <div class="services">
+      <article class="service-card reveal">
+        <div class="service-card__icon">📋</div>
+        <h3>Ordonnance</h3>
+        <p>Envoyez la photo de votre ordonnance sur WhatsApp : nous préparons tout et vous prévenons dès que c'est prêt.</p>
+        <ul>
+          <li>Dépôt et retrait le jour même</li>
+          <li>Vérification des interactions</li>
+          <li>Renouvellement de traitement</li>
+        </ul>
+      </article>
+      <article class="service-card reveal">
+        <div class="service-card__icon">🛵</div>
+        <h3>Livraison</h3>
+        <p>Livraison à domicile dans tout le quartier, payée à la réception. Gratuite à partir de 150 {{ currency }} d'achat.</p>
+        <ul>
+          <li>7 jours sur 7, jusqu'à 22h</li>
+          <li>Paiement à la livraison</li>
+          <li>Produits de parapharmacie inclus</li>
+        </ul>
+      </article>
+      <article class="service-card reveal">
+        <div class="service-card__icon">👩‍⚕️</div>
+        <h3>Conseil</h3>
+        <p>Un pharmacien vous répond gratuitement sur WhatsApp : posologie, précautions, alternatives moins chères.</p>
+        <ul>
+          <li>Tension et glycémie en boutique</li>
+          <li>Conseil bébé et maman</li>
+          <li>Suivi de traitement chronique</li>
+        </ul>
+      </article>
+    </div>
+
+    <div class="reassure">
+      {% for feature in features %}
+      <div class="reveal"><span style="font-size:1.3rem">{{ feature.icon }}</span> {{ feature.text }}</div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block services %}
+<section class="section" id="services">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">Disponibilité</span>
+      <h2>Produits courants &amp; parapharmacie</h2>
+      <p>Stock mis à jour en boutique. Un article manquant ? Nous le commandons en 24h.</p>
+    </div>
+
+    <div class="table-scroll reveal">
+      <table class="med-table">
+        <thead>
+          <tr>
+            <th>Produit</th>
+            <th>Disponibilité</th>
+            <th>Prix</th>
+            {% if is_ecommerce %}<th>Commander</th>{% endif %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for product in products %}
+          <tr>
+            <td>
+              <div class="med-name">
+                <img src="{{ product.image }}" alt="{{ product.name }}" loading="lazy">
+                <div>
+                  <strong>{{ product.name }}</strong>
+                  <span>{{ product.desc }}</span>
+                </div>
+              </div>
+            </td>
+            <td>
+              <span class="stock {% if product.stock == 'En stock' %}stock--in{% else %}stock--order{% endif %}">
+                {% if product.stock == 'En stock' %}● En stock{% else %}◐ Sur commande{% endif %}
+              </span>
+            </td>
+            <td class="med-price">{{ product.price }} {{ currency }}</td>
+            {% if is_ecommerce %}
+            <td>
+              <button class="btn btn--primary btn--sm add-to-cart" type="button"
+                      data-name="{{ product.name }}" data-price="{{ product.price }}" data-image="{{ product.image }}">
+                🛒 Ajouter
+              </button>
+            </td>
+            {% endif %}
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <p class="small muted" style="text-align:center;margin-top:24px">
+      Les médicaments nécessitant une ordonnance ne sont délivrés qu'en boutique,
+      après vérification par un pharmacien.
+    </p>
+  </div>
+</section>
+{% endblock %}
