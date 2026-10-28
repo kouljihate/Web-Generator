@@ -80,6 +80,7 @@ Web-Generator/
 ├── requirements.txt
 ├── README.md
 ├── CHANGELOG.md              # Journal des versions (Keep a Changelog)
+├── _verify_themes.py         # Contrôle de lisibilité des 26 thèmes × 8 gabarits
 ├── .gitignore
 ├── output/                   # Sites enregistrés depuis l'application (créé à la volée)
 ├── templates/
